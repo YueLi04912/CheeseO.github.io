@@ -1,0 +1,12 @@
+{
+    "version": "1.0.0",
+    "site": {
+      "name": "CheeseO",
+      "fullName": "芝士圈",
+      "description": "Knowledge and content sharing platform"
+    },
+    "auth": {
+      "presetCodes": ["123456", "666666", "888888"],
+      "codeExpireTime": 300
+    }
+  }

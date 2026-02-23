@@ -1,0 +1,42 @@
+[
+    {
+      "id": "cat_001",
+      "name": "计量经济学",
+      "description": "计量经济学相关内容",
+      "icon": "fas fa-chart-line",
+      "color": "#3B82F6",
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "cat_002", 
+      "name": "数据分析",
+      "description": "数据分析方法和工具",
+      "icon": "fas fa-database",
+      "color": "#10B981",
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "cat_003",
+      "name": "Python编程",
+      "description": "Python编程教程",
+      "icon": "fab fa-python", 
+      "color": "#F59E0B",
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "cat_004",
+      "name": "统计学",
+      "description": "统计学基础和应用",
+      "icon": "fas fa-calculator",
+      "color": "#8B5CF6",
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "cat_005",
+      "name": "机器学习",
+      "description": "机器学习算法和实践",
+      "icon": "fas fa-robot",
+      "color": "#EF4444",
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ]

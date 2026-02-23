@@ -1,0 +1,28 @@
+[
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin123",
+      "phone": "13800138001",
+      "email": "admin@cheeseo.com",
+      "role": "admin",
+      "nickname": "System Admin",
+      "points": 10000,
+      "status": "active",
+      "membershipType": "none",
+      "createdAt": "2077-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "username": "testuser",
+      "password": "test123",
+      "phone": "13800138002",
+      "email": "test@example.com",
+      "role": "user",
+      "nickname": "Test User",
+      "points": 500,
+      "status": "active",
+      "membershipType": "none",
+      "createdAt": "2077-02-01T00:00:00Z"
+    }
+  ]
