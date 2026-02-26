@@ -132,11 +132,11 @@
             </div>
   
             <!-- 文章正文 -->
-            <div class="prose prose-lg max-w-none">
+            <div class="prose max-w-none break-words overflow-hidden">
               <div 
                 v-if="canReadContent" 
-                class="text-gray-700 leading-relaxed whitespace-pre-wrap"
-                v-html="formatContent(article.content)"
+                class="text-gray-700 leading-relaxed break-words"
+                v-html="sanitizedArticleHtml"
               >
               </div>
               <div v-else class="text-gray-500 italic text-center py-8">
@@ -387,6 +387,7 @@
   
   <script>
   import { SimpleDataManager } from '@/utils/simpleDataManager'
+  import DOMPurify from 'dompurify'
   
   export default {
     name: 'ArticleDetail',
@@ -444,7 +445,14 @@
       // 是否可以阅读内容
       canReadContent() {
         return this.article && (this.article.accessType === 'free' || this.canReadPaidContent)
-      }
+      },
+      
+      sanitizedArticleHtml() {
+        const c = this.article && this.article.content ? String(this.article.content) : ''
+        const isHtml = c.includes('<') && c.includes('>')
+        const html = isHtml ? c : this.formatContent(c)
+        return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } })
+      },
     },
     async mounted() {
       await this.loadArticle()

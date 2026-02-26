@@ -97,7 +97,35 @@ body {
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
   }
-  
+
+  /* 自定义富文本排版样式，优化行距和段落间距 */
+  .prose {
+    line-height: 1.6 !important;
+  }
+
+  .prose p {
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
+  }
+
+  .prose ul, 
+  .prose ol {
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
+  }
+
+  .prose li {
+    margin-top: 0.25em !important;
+    margin-bottom: 0.25em !important;
+  }
+
+  .prose h1, 
+  .prose h2, 
+  .prose h3 {
+    margin-top: 1em !important;
+    margin-bottom: 0.5em !important;
+  }
+
   .glass-morphism-strong {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(30px);

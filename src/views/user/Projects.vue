@@ -295,6 +295,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { SimpleDataManager } from '@/utils/simpleDataManager'
+import { alipayService } from '@/services/alipayService'
 
 // 接口定义
 interface AmountOption {
@@ -457,7 +458,7 @@ const canPurchaseMembership = computed(() => {
 })
 
 // 初始化
-onMounted(() => {
+onMounted(async () => {
   if (!currentUser.value) {
     router.push('/Login')
     return
@@ -465,6 +466,9 @@ onMounted(() => {
   
   // 初始同步数据
   syncUserData()
+  
+  // 检查是否是从支付宝支付返回
+  await checkAlipayReturn()
   
   // 监听页面可见性变化
   document.addEventListener('visibilitychange', handleVisibilityChange)
@@ -474,6 +478,36 @@ onMounted(() => {
   
   console.log('Projects.vue 已加载真实积分数据，当前用户:', currentUser.value)
 })
+
+// 检查支付宝同步返回参数
+const checkAlipayReturn = async () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const outTradeNo = urlParams.get('out_trade_no')
+  const tradeNo = urlParams.get('trade_no')
+  const totalAmount = urlParams.get('total_amount')
+  
+  if (outTradeNo && tradeNo) {
+    console.log('[Alipay] Detected return from payment:', { outTradeNo, tradeNo, totalAmount })
+    
+    loading.value = true
+    try {
+      // 模拟验证并完成订单
+      // 在真实后端中，这里需要调用支付宝 API 验证同步返回的签名
+      await completeLocalOrder(outTradeNo)
+      
+      // 清理 URL 参数，防止刷新页面重复充值
+      window.history.replaceState({}, document.title, window.location.pathname)
+      
+      successMessage.value = 'Alipay payment successful!'
+      showSuccessMessage.value = true
+      setTimeout(() => { showSuccessMessage.value = false }, 3000)
+    } catch (error) {
+      console.error('Failed to process Alipay return:', error)
+    } finally {
+      loading.value = false
+    }
+  }
+}
 
 // 清理资源
 onUnmounted(() => {
@@ -569,7 +603,7 @@ const handlePointsPayment = async () => {
   loading.value = true
   
   try {
-    // 创建充值订单
+    // 1. 创建充值订单
     const order = await dataManager.createRechargeOrderAsync(
       currentUser.value.id,
       currentAmount.value,
@@ -577,18 +611,40 @@ const handlePointsPayment = async () => {
     )
     
     console.log('充值订单已创建:', order)
+
+    // 2. 根据支付方式处理
+    if (selectedPaymentMethod.value.type === 'alipay') {
+      // 接入支付宝沙箱 API：构造请求并跳转到支付宝真实网关
+      // 注意：由于没有后端，签名(sign)在 alipayService 中是 mock 的，
+      // 跳转后支付宝会提示“签名校验失败”，这是正常现象，说明你已经成功触达到了支付宝 API。
+      await alipayService.initiatePayment(
+        order.id, 
+        currentAmount.value, 
+        `Points Recharge - ${currentPoints.value} Points`
+      )
+      // 页面会发生跳转，后续逻辑由 onMounted 中的 checkAlipayReturn 处理
+    } else {
+      // 其他支付方式（微信/银行卡）目前仍走模拟逻辑
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      await completeLocalOrder(order.id)
+    }
+  } catch (error: any) {
+    console.error('Recharge failed:', error)
+    alert(error.message || 'Recharge failed, please try again later')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 提取公共的完成订单逻辑
+const completeLocalOrder = async (orderId: string) => {
+  const result = await dataManager.completeRechargeOrderAsync(orderId)
+  
+  if (result) {
+    // 同步最新用户数据
+    await syncUserData()
     
-    // 模拟支付延迟
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // 完成充值
-    const result = await dataManager.completeRechargeOrderAsync(order.id)
-    
-    if (result) {
-      // 重要：同步最新用户数据
-      await syncUserData()
-      
-      // 显示成功动画
+    // 显示成功动画
     showAnimation('add', currentPoints.value, 'Recharge successful!')
     
     // 重置表单
@@ -597,14 +653,8 @@ const handlePointsPayment = async () => {
     
     console.log('Recharge successful, current points:', currentUser.value?.points)
   } else {
-    throw new Error('Recharge processing failed')
+    throw new Error('Order completion failed')
   }
-} catch (error: any) {
-  console.error('Recharge failed:', error)
-  alert(error.message || 'Recharge failed, please try again later')
-} finally {
-  loading.value = false
-}
 }
 
 // Handle membership activation

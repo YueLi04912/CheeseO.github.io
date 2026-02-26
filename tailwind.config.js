@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import typography from '@tailwindcss/typography'
+
 export default {
   content: [
     "./index.html",
@@ -548,6 +550,7 @@ export default {
   
   // 自定义插件
   plugins: [
+    typography,
     // 冷暖色调工具类插件
     function({ addUtilities, theme, addBase, addComponents }) {
       // 基础样式重置

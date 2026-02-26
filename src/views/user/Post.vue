@@ -23,7 +23,6 @@
 
       <!-- Blog Post Form -->
       <div v-if="activeTab === 'blog'" class="bg-white rounded-xl shadow-lg p-6 transform transition-all hover:scale-[1.01] duration-300">
-        <!-- Blog form content remains unchanged... -->
         <h2 class="text-3xl font-bold text-gray-800 mb-6 font-poppins">New Blog Post</h2>
         
         <!-- Error Alert -->
@@ -92,45 +91,16 @@
         <!-- Rich Text Editor -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Content*</label>
-          <div class="border border-purple-300 rounded-lg overflow-hidden">
-            <div class="p-4 bg-purple-50 border-b border-purple-300 flex flex-wrap gap-2">
-              <button type="button" @click="applyBlogFormat('bold')" class="w-10 h-10 flex items-center justify-center bg-white text-purple-500 hover:bg-purple-100 rounded-lg transition-all duration-200" title="Bold">
-                <i class="fas fa-bold"></i>
-              </button>
-              <button type="button" @click="applyBlogFormat('italic')" class="w-10 h-10 flex items-center justify-center bg-white text-purple-500 hover:bg-purple-100 rounded-lg transition-all duration-200" title="Italic">
-                <i class="fas fa-italic"></i>
-              </button>
-              <button type="button" @click="applyBlogFormat('list')" class="w-10 h-10 flex items-center justify-center bg-white text-purple-500 hover:bg-purple-100 rounded-lg transition-all duration-200" title="List">
-                <i class="fas fa-list-ul"></i>
-              </button>
-              <button type="button" @click="insertBlogLink" class="w-10 h-10 flex items-center justify-center bg-white text-purple-500 hover:bg-purple-100 rounded-lg transition-all duration-200" title="Link">
-                <i class="fas fa-link"></i>
-              </button>
-              <button type="button" @click="triggerContentImageUpload" class="w-10 h-10 flex items-center justify-center bg-white text-purple-500 hover:bg-purple-100 rounded-lg transition-all duration-200" title="Image">
-                <i class="fas fa-image"></i>
-              </button>
-              <div class="flex-1"></div>
-              <span class="text-xs text-gray-500 flex items-center">Markdown supported</span>
-            </div>
-            <input
-              ref="contentImageInput"
-              type="file"
-              class="hidden"
-              accept="image/jpeg,image/png"
-              @change="handleContentImageInsert"
-            >
-            <textarea
-              ref="blogContentTextarea"
-              v-model="blogForm.content"
-              class="w-full h-64 p-4 focus:outline-none font-poppins"
-              placeholder="Enter blog content (Markdown supported)&#10;&#10;Example:&#10;# Title&#10;## Subtitle&#10;**Bold**&#10;*Italic*&#10;- List item&#10;[Link](https://example.com)"
-              required
-            ></textarea>
-          </div>
+          <TiptapEditor
+            ref="blogEditor"
+            :value="blogForm.content"
+            @input="blogForm.content = $event"
+            @upload-image="handleEditorImageUpload"
+          />
           <p class="mt-1 text-xs text-gray-500">Current chars: {{ blogForm.content.length }} (Recommended 500+)</p>
         </div>
 
-        <!-- 标签 -->
+        <!-- Tags -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Tags (Max 5)</label>
           <div class="flex flex-wrap gap-2 mb-2">
@@ -170,34 +140,7 @@
           <p class="mt-1 text-xs text-gray-500">Suggested tags: {{ suggestedTags.join('、') }}</p>
         </div>
 
-        <!-- 图片上传 -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Cover Image (Optional)</label>
-          <div class="flex items-center justify-center w-full">
-            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-purple-400 rounded-lg cursor-pointer bg-purple-50 hover:bg-purple-100 transition-all duration-200">
-              <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                <i class="fas fa-cloud-upload-alt text-purple-500 text-4xl mb-2"></i>
-                <p class="text-sm text-gray-600 font-poppins">Click to upload or drag & drop</p>
-                <p class="text-xs text-gray-500 font-poppins">Supports JPG, PNG (Max 5MB)</p>
-              </div>
-              <input type="file" class="hidden" @change="handleImageUpload" accept="image/jpeg,image/png">
-            </label>
-          </div>
-          <div v-if="blogForm.coverImage" class="mt-4">
-            <div class="relative inline-block">
-              <img :src="blogForm.coverImage" class="w-32 h-24 object-cover rounded-lg border border-purple-200">
-              <button 
-                type="button"
-                @click="removeCoverImage"
-                class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-              >
-                <i class="fas fa-times text-xs"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 权限设置 -->
+        <!-- Access -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Access</label>
           <div class="flex items-center space-x-4">
@@ -237,7 +180,7 @@
           </div>
         </div>
 
-        <!-- 发布预览 -->
+        <!-- Preview -->
         <div v-if="isBlogFormValid" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <h3 class="text-sm font-medium text-gray-700 mb-2">Preview</h3>
           <div class="text-sm text-gray-600 space-y-1">
@@ -249,7 +192,7 @@
           </div>
         </div>
 
-        <!-- 提交按钮 -->
+        <!-- Submit Buttons -->
         <div class="flex justify-end space-x-4">
           <button
             type="button"
@@ -270,21 +213,21 @@
         </div>
       </div>
 
-      <!-- 视频发布表单 -->
+      <!-- Video Post Form -->
       <div v-if="activeTab === 'video'" class="bg-white rounded-xl shadow-lg p-6 transform transition-all hover:scale-[1.01] duration-300">
         <h2 class="text-3xl font-bold text-gray-800 mb-6 font-poppins">New Video Post</h2>
         
-        <!-- 错误提示 -->
+        <!-- Error Alert -->
         <div v-if="errorMessage" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {{ errorMessage }}
         </div>
         
-        <!-- 成功提示 -->
+        <!-- Success Alert -->
         <div v-if="successMessage" class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
           {{ successMessage }}
         </div>
         
-        <!-- 会员检查 -->
+        <!-- Membership Check -->
         <div v-if="!currentUser || membershipStatus.membershipType === 'none'" class="mb-6 p-4 bg-yellow-100 border border-yellow-400 rounded-lg">
           <div class="flex items-center">
             <i class="fas fa-crown text-yellow-600 mr-2"></i>
@@ -298,9 +241,9 @@
           </div>
         </div>
         
-        <!-- 视频表单内容 -->
+        <!-- Video Form Content -->
         <div v-if="currentUser && membershipStatus.membershipType !== 'none'">
-          <!-- 标题 -->
+          <!-- Title -->
           <div class="mb-6">
             <label for="video-title" class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Video Title*</label>
             <input
@@ -314,7 +257,7 @@
             <p v-if="videoForm.title.length > 0" class="mt-1 text-xs text-gray-500">{{ videoForm.title.length }}/100 chars</p>
           </div>
 
-          <!-- 分类选择 -->
+          <!-- Category -->
           <div class="mb-6">
             <label for="video-category" class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Category*</label>
             <div class="relative">
@@ -325,11 +268,7 @@
                 required
               >
                 <option value="" disabled selected>Select Category</option>
-                <option 
-                  v-for="category in categories" 
-                  :key="category.id" 
-                  :value="category.id"
-                >
+                <option v-for="category in categories" :key="category.id" :value="category.id">
                   {{ category.name }}
                 </option>
               </select>
@@ -339,7 +278,7 @@
             </div>
           </div>
 
-          <!-- 视频简介 -->
+          <!-- Description -->
           <div class="mb-6">
             <label for="video-excerpt" class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Video Description*</label>
             <textarea
@@ -353,7 +292,7 @@
             <p class="mt-1 text-xs text-gray-500">{{ videoForm.excerpt.length }}/300 chars</p>
           </div>
 
-          <!-- 视频文件上传 -->
+          <!-- Video Upload -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Video File*</label>
             <div class="flex items-center justify-center w-full">
@@ -374,7 +313,7 @@
             </div>
           </div>
 
-          <!-- 封面图片上传 -->
+          <!-- Video Cover -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Video Cover (Optional)</label>
             <div class="flex items-center justify-center w-full">
@@ -401,7 +340,7 @@
             </div>
           </div>
 
-          <!-- 标签 -->
+          <!-- Video Tags -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Tags (Max 5)</label>
             <div class="flex flex-wrap gap-2 mb-2">
@@ -440,7 +379,7 @@
             </div>
           </div>
 
-          <!-- 权限设置 -->
+          <!-- Video Access -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2 font-poppins">Access</label>
             <div class="flex items-center space-x-4">
@@ -480,7 +419,7 @@
             </div>
           </div>
 
-          <!-- 发布预览 -->
+          <!-- Video Preview -->
           <div v-if="isVideoFormValid" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <h3 class="text-sm font-medium text-gray-700 mb-2">Preview</h3>
             <div class="text-sm text-gray-600 space-y-1">
@@ -492,7 +431,7 @@
             </div>
           </div>
 
-          <!-- 提交按钮 -->
+          <!-- Video Submit Buttons -->
           <div class="flex justify-end space-x-4">
             <button
               type="button"
@@ -513,7 +452,7 @@
           </div>
         </div>
         
-        <!-- 非会员状态 -->
+        <!-- Membership Required Message -->
         <div v-else class="text-center py-8">
           <i class="fas fa-crown text-6xl text-yellow-400 mb-4"></i>
           <h3 class="text-xl font-bold text-gray-800 mb-2">Membership required for video posting</h3>
@@ -528,7 +467,7 @@
       </div>
     </div>
 
-    <!-- 提交成功提示 -->
+    <!-- Submission Success Modal -->
     <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-xl p-6 max-w-md w-full transform scale-95 animate-pop-in">
         <div class="text-center">
@@ -564,9 +503,13 @@
 <script>
 import { SimpleDataManager } from '@/utils/simpleDataManager'
 import { firebaseRepo } from '@/services/firebaseRepo'
+import TiptapEditor from '@/components/TiptapEditor.vue'
 
 export default {
   name: 'Post',
+  components: {
+    TiptapEditor
+  },
   data() {
     return {
       activeTab: 'blog',
@@ -578,28 +521,28 @@ export default {
       newTag: '',
       newVideoTag: '',
       
-      // 数据管理器和用户
+      // Data Manager and User
       dataManager: null,
       currentUser: null,
       categories: [],
       membershipStatus: { membershipType: 'none' },
       
-      // 建议标签
+      // Suggested Tags
       suggestedTags: ['Tech', 'Tutorial', 'Analysis', 'Research', 'Case Study'],
       
-      // 博客表单数据
+      // Blog Form Data
       blogForm: {
         title: '',
         excerpt: '',
         content: '',
         categoryId: '',
         tags: [],
-        coverImage: '',
+        coverImage: '', // Keep for backward compatibility or future use, but UI removed
         accessType: 'free',
         price: 10
       },
       
-      // 视频表单数据
+      // Video Form Data
       videoForm: {
         title: '',
         excerpt: '',
@@ -640,144 +583,56 @@ export default {
     this.initializeData()
   },
   methods: {
-    applyBlogFormat(type) {
-      const textarea = this.$refs.blogContentTextarea
-      if (!textarea) return
-      const start = textarea.selectionStart || 0
-      const end = textarea.selectionEnd || 0
-      const selected = this.blogForm.content.slice(start, end)
-      let inserted = ''
-      if (type === 'bold') {
-        const text = selected || 'bold text'
-        inserted = `**${text}**`
-      } else if (type === 'italic') {
-        const text = selected || 'italic text'
-        inserted = `*${text}*`
-      } else if (type === 'list') {
-        const text = selected || 'list item'
-        const lines = text.split('\n').map(line => {
-          const trimmed = line.trim()
-          if (!trimmed) return '- '
-          if (trimmed.startsWith('- ')) return trimmed
-          return `- ${trimmed}`
-        }).join('\n')
-        inserted = lines
-      } else {
-        return
-      }
-      const before = this.blogForm.content.slice(0, start)
-      const after = this.blogForm.content.slice(end)
-      this.blogForm.content = before + inserted + after
-      this.$nextTick(() => {
-        const cursor = before.length + inserted.length
-        textarea.focus()
-        textarea.selectionStart = cursor
-        textarea.selectionEnd = cursor
-      })
-    },
-
-    insertBlogLink() {
-      const textarea = this.$refs.blogContentTextarea
-      if (!textarea) return
-      const start = textarea.selectionStart || 0
-      const end = textarea.selectionEnd || 0
-      const selected = this.blogForm.content.slice(start, end) || 'link text'
-      const url = window.prompt('Enter URL', 'https://') || 'https://'
-      const inserted = `[${selected}](${url})`
-      const before = this.blogForm.content.slice(0, start)
-      const after = this.blogForm.content.slice(end)
-      this.blogForm.content = before + inserted + after
-      this.$nextTick(() => {
-        const cursor = before.length + inserted.length
-        textarea.focus()
-        textarea.selectionStart = cursor
-        textarea.selectionEnd = cursor
-      })
-    },
-
-    triggerContentImageUpload() {
-      const input = this.$refs.contentImageInput
-      if (input) {
-        input.value = ''
-        input.click()
-      }
-    },
-
-    async handleContentImageInsert(event) {
-      const file = event.target.files && event.target.files[0]
+    async handleEditorImageUpload(file) {
       if (!file) return
       
       if (!file.type.match('image.*')) {
         this.errorMessage = 'Please upload a valid image file'
-        event.target.value = ''
         return
       }
       
       if (file.size > 5 * 1024 * 1024) {
         this.errorMessage = 'Image size cannot exceed 5MB'
-        event.target.value = ''
         return
       }
       
       if (!this.currentUser) {
         this.errorMessage = 'Please login before uploading images'
-        event.target.value = ''
         return
       }
       
       try {
         const url = await firebaseRepo.uploadContentImage(this.currentUser.id, file)
-        const textarea = this.$refs.blogContentTextarea
-        const markdown = `\n\n![](${url})\n\n`
-        if (textarea) {
-          const start = textarea.selectionStart || 0
-          const end = textarea.selectionEnd || 0
-          const before = this.blogForm.content.slice(0, start)
-          const after = this.blogForm.content.slice(end)
-          this.blogForm.content = before + markdown + after
-          this.$nextTick(() => {
-            const cursor = before.length + markdown.length
-            textarea.focus()
-            textarea.selectionStart = cursor
-            textarea.selectionEnd = cursor
-          })
+        // Insert into rich text
+        if (this.$refs.blogEditor && typeof this.$refs.blogEditor.insertImage === 'function') {
+          this.$refs.blogEditor.insertImage(url)
         } else {
-          this.blogForm.content += markdown
+          // Fallback
+          const imgHtml = `<p><img src="${url}" alt="" /></p>`
+          this.blogForm.content = (this.blogForm.content || '') + imgHtml
         }
         this.errorMessage = ''
       } catch (error) {
-        console.error('Failed to upload content image:', error)
+        console.error('Failed to upload editor image:', error)
         this.errorMessage = 'Image upload failed, please try again'
-      } finally {
-        event.target.value = ''
       }
     },
 
     async initializeData() {
       try {
-        // 初始化数据管理器
         this.dataManager = SimpleDataManager.getInstance()
-        
-        // 异步获取当前用户
         const user = await this.dataManager.getCurrentUserAsync()
         
-        // 检查登录状态
         if (!user) {
           this.$router.push('/Login')
           return
         }
         
         this.currentUser = user
-        
-        // 加载分类数据
         await this.loadCategories()
-        
-        // 加载会员状态
         await this.loadMembershipStatus()
-        
-        console.log('Post.vue 初始化完成，当前用户:', this.currentUser)
       } catch (error) {
-        console.error('初始化发布页面失败:', error)
+        console.error('Failed to initialize post page:', error)
         this.errorMessage = 'Initialization failed, please refresh page'
       }
     },
@@ -785,29 +640,20 @@ export default {
     async loadCategories() {
       try {
         this.categories = await this.dataManager.getCategoriesAsync() || []
-        
-        // 如果没有分类，创建默认分类
         if (this.categories.length === 0) {
           await this.createDefaultCategories()
         }
-        
-        console.log('分类数据已加载:', this.categories.length, '个分类')
       } catch (error) {
-        console.error('加载分类失败:', error)
-        this.errorMessage = 'Failed to load categories'
+        console.error('Failed to load categories:', error)
       }
     },
     
     async loadMembershipStatus() {
       if (!this.currentUser) return
-      
       try {
         this.membershipStatus = await this.dataManager.getUserMembershipStatusAsync(this.currentUser.id)
-        console.log('会员状态:', this.membershipStatus)
       } catch (error) {
-        console.error('加载会员状态失败:', error)
-        // Fallback to sync method if async fails
-        this.membershipStatus = this.dataManager.getUserMembershipStatus(this.currentUser.id)
+        console.error('Failed to load membership status:', error)
       }
     },
     
@@ -825,7 +671,7 @@ export default {
           const category = await this.dataManager.createCategoryAsync(categoryData)
           this.categories.push(category)
         } catch (error) {
-          console.error('创建默认分类失败:', categoryData, error)
+          console.error('Failed to create category:', error)
         }
       }
     },
@@ -840,11 +686,8 @@ export default {
       return category ? category.name : 'Not selected'
     },
     
-    // 博客标签管理
     addTag() {
-      if (this.newTag.trim() && 
-          !this.blogForm.tags.includes(this.newTag.trim()) && 
-          this.blogForm.tags.length < 5) {
+      if (this.newTag.trim() && !this.blogForm.tags.includes(this.newTag.trim()) && this.blogForm.tags.length < 5) {
         this.blogForm.tags.push(this.newTag.trim())
         this.newTag = ''
       }
@@ -854,11 +697,8 @@ export default {
       this.blogForm.tags.splice(index, 1)
     },
     
-    // 视频标签管理
     addVideoTag() {
-      if (this.newVideoTag.trim() && 
-          !this.videoForm.tags.includes(this.newVideoTag.trim()) && 
-          this.videoForm.tags.length < 5) {
+      if (this.newVideoTag.trim() && !this.videoForm.tags.includes(this.newVideoTag.trim()) && this.videoForm.tags.length < 5) {
         this.videoForm.tags.push(this.newVideoTag.trim())
         this.newVideoTag = ''
       }
@@ -868,71 +708,34 @@ export default {
       this.videoForm.tags.splice(index, 1)
     },
     
-    // 图片上传处理
-    handleImageUpload(event) {
-      const file = event.target.files[0]
-      if (!file) return
-      
-      if (!file.type.match('image.*')) {
-        this.errorMessage = 'Please upload a valid image file'
-        return
-      }
-      
-      if (file.size > 5 * 1024 * 1024) { // 5MB限制
-        this.errorMessage = 'Image size cannot exceed 5MB'
-        return
-      }
-      
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        this.blogForm.coverImage = e.target.result
-        this.errorMessage = ''
-      }
-      reader.readAsDataURL(file)
-    },
-    
-    removeCoverImage() {
-      this.blogForm.coverImage = ''
-    },
-    
-    // 视频上传处理
     handleVideoUpload(event) {
       const file = event.target.files[0]
       if (!file) return
-      
       if (!file.type.match('video.*')) {
         this.errorMessage = 'Please upload a valid video file'
         return
       }
-      
-      if (file.size > 500 * 1024 * 1024) { // 500MB限制
+      if (file.size > 500 * 1024 * 1024) {
         this.errorMessage = 'Video size cannot exceed 500MB'
         return
       }
-      
       this.videoForm.videoFile = file
-      this.errorMessage = ''
     },
     
-    // 视频封面上传
     handleVideoImageUpload(event) {
       const file = event.target.files[0]
       if (!file) return
-      
       if (!file.type.match('image.*')) {
         this.errorMessage = 'Please upload a valid image file'
         return
       }
-      
-      if (file.size > 5 * 1024 * 1024) { // 5MB限制
+      if (file.size > 5 * 1024 * 1024) {
         this.errorMessage = 'Image size cannot exceed 5MB'
         return
       }
-      
       const reader = new FileReader()
       reader.onload = (e) => {
         this.videoForm.coverImage = e.target.result
-        this.errorMessage = ''
       }
       reader.readAsDataURL(file)
     },
@@ -943,55 +746,33 @@ export default {
     
     async saveDraft(type) {
       if (!this.currentUser) return
-      
       const form = type === 'blog' ? this.blogForm : this.videoForm
-      
       if (!form.title.trim()) {
         this.errorMessage = 'Please enter at least a title to save draft'
         return
       }
-      
       try {
-        // 获取选中的分类信息
         const selectedCategory = this.categories.find(c => c.id === form.categoryId)
-        
         if (type === 'blog') {
-          // 创建草稿文章
           const articleData = {
             title: form.title || 'Untitled Draft',
             content: form.content,
             excerpt: form.excerpt || form.content.substring(0, 100) + '...',
             authorId: this.currentUser.id,
             authorName: this.currentUser.nickname || this.currentUser.username,
-            categoryId: form.categoryId || this.categories[0]?.id || '',
-            categoryName: selectedCategory ? selectedCategory.name : (this.categories[0]?.name || 'Uncategorized'),
+            categoryId: form.categoryId || '',
+            categoryName: selectedCategory ? selectedCategory.name : 'Uncategorized',
             tags: form.tags || [],
-            coverImage: form.coverImage,
-            images: form.coverImage ? [form.coverImage] : [],
-            accessType: form.accessType,
-            price: form.accessType === 'paid' ? form.price : 0,
             status: 'draft',
-            isVideo: false,
-            videoFile: undefined,
-            videoUrl: undefined,
-            duration: undefined
+            isVideo: false
           }
-          
-          const article = await this.dataManager.createArticleAsync(articleData)
-          console.log('博客草稿已保存:', article)
-        } else {
-          // 视频草稿保存（模拟）
-          console.log('视频草稿已保存:', form)
+          await this.dataManager.createArticleAsync(articleData)
         }
-        
         this.successMessage = 'Draft saved successfully!'
-        setTimeout(() => {
-          this.successMessage = ''
-        }, 3000)
-        
+        setTimeout(() => { this.successMessage = '' }, 3000)
       } catch (error) {
-        console.error('保存草稿失败:', error)
-        this.errorMessage = 'Failed to save draft: ' + error.message
+        console.error('Failed to save draft:', error)
+        this.errorMessage = 'Failed to save draft'
       }
     },
     
@@ -1000,36 +781,10 @@ export default {
       if (!isValid || !this.currentUser) return
       
       this.isSubmitting = true
-      this.errorMessage = ''
-      
       try {
         const form = type === 'blog' ? this.blogForm : this.videoForm
-        
-        // 获取选中的分类信息
         const selectedCategory = this.categories.find(c => c.id === form.categoryId)
         
-        if (!selectedCategory) {
-          throw new Error('Please select a category')
-        }
-        
-        // 验证表单数据
-        if (form.title.length > 100) {
-          throw new Error('Title cannot exceed 100 characters')
-        }
-        
-        if (form.excerpt.length < 1 || form.excerpt.length > 300) {
-          throw new Error('Excerpt must be 1-300 characters')
-        }
-        
-        if (type === 'blog' && form.content.length < 1) {
-          throw new Error('Content must be at least 1 character')
-        }
-        
-        if (type === 'video' && !form.videoFile) {
-          throw new Error('Please upload a video file')
-        }
-        
-        // 创建待审核的内容数据
         const pendingContent = {
           id: 'content_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
           type: type,
@@ -1039,35 +794,25 @@ export default {
           categoryId: form.categoryId,
           categoryName: selectedCategory.name,
           tags: form.tags,
-          images: form.coverImage ? [form.coverImage] : [],
           accessType: form.accessType,
           price: form.accessType === 'paid' ? form.price : 0,
           author: this.currentUser.nickname || this.currentUser.username,
           authorId: this.currentUser.id,
           submitTime: new Date(),
           status: 'pending',
-          // 视频特有字段
           ...(type === 'video' && {
             videoFile: form.videoFile,
             duration: 'Pending'
           })
         }
         
-        // 添加到待审核列表
         await this.dataManager.addPendingContentAsync(pendingContent)
-        
-        console.log('内容已提交审核(Firebase):', pendingContent)
-        
-        // 显示成功提示
         this.submittedContentType = type === 'blog' ? 'blog post' : 'video'
         this.showSuccessModal = true
-        
-        // 重置表单
         this.resetForm(type)
-        
       } catch (error) {
-        console.error('提交审核失败:', error)
-        this.errorMessage = 'Submission failed: ' + error.message
+        console.error('Submission failed:', error)
+        this.errorMessage = 'Submission failed'
       } finally {
         this.isSubmitting = false
       }
@@ -1075,79 +820,24 @@ export default {
     
     resetForm(type) {
       if (type === 'blog') {
-        this.blogForm = {
-          title: '',
-          excerpt: '',
-          content: '',
-          categoryId: '',
-          tags: [],
-          coverImage: '',
-          accessType: 'free',
-          price: 10
-        }
-        this.newTag = ''
+        this.blogForm = { title: '', excerpt: '', content: '', categoryId: '', tags: [], coverImage: '', accessType: 'free', price: 10 }
       } else {
-        this.videoForm = {
-          title: '',
-          excerpt: '',
-          categoryId: '',
-          tags: [],
-          coverImage: '',
-          videoFile: null,
-          accessType: 'free',
-          price: 20
-        }
-        this.newVideoTag = ''
+        this.videoForm = { title: '', excerpt: '', categoryId: '', tags: [], coverImage: '', videoFile: null, accessType: 'free', price: 20 }
       }
-      this.errorMessage = ''
-      this.successMessage = ''
     },
     
-    goToHome() {
-      this.showSuccessModal = false
-      this.$router.push('/')
-    },
-    
-    goToProfile() {
-      this.showSuccessModal = false
-      this.$router.push('/about')
-    }
+    goToHome() { this.$router.push('/') },
+    goToProfile() { this.$router.push('/about') }
   }
 }
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
-.font-poppins {
-  font-family: 'Poppins', sans-serif;
-}
-
-.animate-pop-in {
-  animation: pop-in 0.3s ease-out;
-}
-
+.font-poppins { font-family: 'Poppins', sans-serif; }
+.animate-pop-in { animation: pop-in 0.3s ease-out forwards; }
 @keyframes pop-in {
-  0% {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 </style>

@@ -160,69 +160,12 @@
 
         <div>
           <label for="article-content" class="block text-xs sm:text-sm font-medium text-gray-900 mb-1">Content <span class="text-red-500">*</span></label>
-          <div class="border border-gray-300 rounded-lg overflow-hidden">
-            <div class="bg-gray-50 px-4 py-2 border-b border-gray-300 flex flex-wrap gap-2 items-center">
-              <button
-                type="button"
-                @click="applyArticleFormat('bold')"
-                class="w-8 h-8 flex items-center justify-center bg-white text-indigo-500 hover:bg-indigo-100 rounded-md text-xs"
-                title="Bold"
-              >
-                <i class="fas fa-bold"></i>
-              </button>
-              <button
-                type="button"
-                @click="applyArticleFormat('italic')"
-                class="w-8 h-8 flex items-center justify-center bg-white text-indigo-500 hover:bg-indigo-100 rounded-md text-xs"
-                title="Italic"
-              >
-                <i class="fas fa-italic"></i>
-              </button>
-              <button
-                type="button"
-                @click="applyArticleFormat('list')"
-                class="w-8 h-8 flex items-center justify-center bg-white text-indigo-500 hover:bg-indigo-100 rounded-md text-xs"
-                title="List"
-              >
-                <i class="fas fa-list-ul"></i>
-              </button>
-              <button
-                type="button"
-                @click="insertArticleLink"
-                class="w-8 h-8 flex items-center justify-center bg-white text-indigo-500 hover:bg-indigo-100 rounded-md text-xs"
-                title="Link"
-              >
-                <i class="fas fa-link"></i>
-              </button>
-              <button
-                type="button"
-                @click="triggerArticleContentImageUpload"
-                class="w-8 h-8 flex items-center justify-center bg-white text-indigo-500 hover:bg-indigo-100 rounded-md text-xs"
-                title="Image"
-              >
-                <i class="fas fa-image"></i>
-              </button>
-              <div class="flex-1"></div>
-              <span class="text-xs text-gray-500">Markdown supported · {{ articleForm.content.length }} chars</span>
-            </div>
-            <input
-              ref="articleContentImageInput"
-              type="file"
-              class="hidden"
-              accept="image/jpeg,image/png"
-              @change="handleArticleContentImageInsert"
-            >
-            <textarea
-              id="article-content"
-              ref="articleContentTextarea"
-              v-model="articleForm.content"
-              required
-              rows="12"
-              class="w-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white resize-none"
-              :class="{ 'border-red-500': errors.content }"
-              placeholder="Enter content (Markdown supported)&#10;&#10;Example:&#10;# Title&#10;## Subtitle&#10;**Bold**&#10;*Italic*&#10;- List Item"
-            ></textarea>
-          </div>
+          <TiptapEditor
+            ref="articleEditor"
+            :value="articleForm.content"
+            @input="articleForm.content = $event"
+            @upload-image="handleEditorImageUpload"
+          />
           <p v-if="errors.content" class="mt-1 text-xs text-red-600 animate-pulse">{{ errors.content }}</p>
         </div>
 
@@ -519,9 +462,13 @@
 <script>
 import { SimpleDataManager } from '@/utils/simpleDataManager'
 import { firebaseRepo } from '@/services/firebaseRepo'
+import TiptapEditor from '@/components/TiptapEditor.vue'
 
 export default {
   name: 'CoursePost',
+  components: {
+    TiptapEditor
+  },
   data() {
     return {
       contentTypes: [
@@ -587,116 +534,38 @@ export default {
   },
   
   methods: {
-    applyArticleFormat(type) {
-      const textarea = this.$refs.articleContentTextarea
-      if (!textarea) return
-      const start = textarea.selectionStart || 0
-      const end = textarea.selectionEnd || 0
-      const selected = this.articleForm.content.slice(start, end)
-      let inserted = ''
-      if (type === 'bold') {
-        const text = selected || 'bold text'
-        inserted = `**${text}**`
-      } else if (type === 'italic') {
-        const text = selected || 'italic text'
-        inserted = `*${text}*`
-      } else if (type === 'list') {
-        const text = selected || 'list item'
-        const lines = text.split('\n').map(line => {
-          const trimmed = line.trim()
-          if (!trimmed) return '- '
-          if (trimmed.startsWith('- ')) return trimmed
-          return `- ${trimmed}`
-        }).join('\n')
-        inserted = lines
-      } else {
-        return
-      }
-      const before = this.articleForm.content.slice(0, start)
-      const after = this.articleForm.content.slice(end)
-      this.articleForm.content = before + inserted + after
-      this.$nextTick(() => {
-        const cursor = before.length + inserted.length
-        textarea.focus()
-        textarea.selectionStart = cursor
-        textarea.selectionEnd = cursor
-      })
-    },
-
-    insertArticleLink() {
-      const textarea = this.$refs.articleContentTextarea
-      if (!textarea) return
-      const start = textarea.selectionStart || 0
-      const end = textarea.selectionEnd || 0
-      const selected = this.articleForm.content.slice(start, end) || 'link text'
-      const url = window.prompt('Enter URL', 'https://') || 'https://'
-      const inserted = `[${selected}](${url})`
-      const before = this.articleForm.content.slice(0, start)
-      const after = this.articleForm.content.slice(end)
-      this.articleForm.content = before + inserted + after
-      this.$nextTick(() => {
-        const cursor = before.length + inserted.length
-        textarea.focus()
-        textarea.selectionStart = cursor
-        textarea.selectionEnd = cursor
-      })
-    },
-
-    triggerArticleContentImageUpload() {
-      const input = this.$refs.articleContentImageInput
-      if (input) {
-        input.value = ''
-        input.click()
-      }
-    },
-
-    async handleArticleContentImageInsert(event) {
-      const file = event.target.files && event.target.files[0]
+    async handleEditorImageUpload(file) {
       if (!file) return
       
       if (!file.type.match('image.*')) {
         this.showMessage('Please upload a valid image file', 'error')
-        event.target.value = ''
         return
       }
       
       if (file.size > 5 * 1024 * 1024) {
         this.showMessage('Image size cannot exceed 5MB', 'error')
-        event.target.value = ''
         return
       }
       
       if (!this.currentUser) {
         this.showMessage('Please login before uploading images', 'error')
-        event.target.value = ''
         return
       }
       
       try {
         const url = await firebaseRepo.uploadContentImage(this.currentUser.id, file)
-        const textarea = this.$refs.articleContentTextarea
-        const markdown = `\n\n![](${url})\n\n`
-        if (textarea) {
-          const start = textarea.selectionStart || 0
-          const end = textarea.selectionEnd || 0
-          const before = this.articleForm.content.slice(0, start)
-          const after = this.articleForm.content.slice(end)
-          this.articleForm.content = before + markdown + after
-          this.$nextTick(() => {
-            const cursor = before.length + markdown.length
-            textarea.focus()
-            textarea.selectionStart = cursor
-            textarea.selectionEnd = cursor
-          })
+        // 插入到富文本中
+        if (this.$refs.articleEditor && typeof this.$refs.articleEditor.insertImage === 'function') {
+          this.$refs.articleEditor.insertImage(url)
         } else {
-          this.articleForm.content += markdown
+          // 兜底：直接拼接到内容 HTML 中
+          const imgHtml = `<p><img src="${url}" alt="" /></p>`
+          this.articleForm.content = (this.articleForm.content || '') + imgHtml
         }
         this.showMessage('Image uploaded successfully', 'success')
       } catch (error) {
-        console.error('Failed to upload article content image:', error)
+        console.error('Failed to upload editor image:', error)
         this.showMessage('Image upload failed, please try again', 'error')
-      } finally {
-        event.target.value = ''
       }
     },
 
@@ -1196,3 +1065,37 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Glass panel effect */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  z-index: 0;
+  animation: float 15s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-3000 { animation-delay: 3s; }
+
+.fade-slide-enter-active, .fade-slide-leave-active {
+  transition: all 0.5s ease;
+}
+.fade-slide-enter-from, .fade-slide-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -40%);
+}
+</style>

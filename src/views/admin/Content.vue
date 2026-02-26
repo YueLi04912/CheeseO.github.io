@@ -76,19 +76,19 @@
       <!-- Pending List -->
       <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden animate-fade-in-up animation-delay-600">
         <!-- List Header -->
-        <div class="hidden sm:grid grid-cols-12 bg-gradient-to-r from-gray-50 to-gray-100 p-3 sm:p-4 border-b border-gray-200/50 font-poppins text-sm text-gray-700">
-          <div class="col-span-4">Title</div>
+        <div class="hidden sm:grid grid-cols-12 gap-x-6 bg-gray-50/80 backdrop-blur-sm p-4 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <div class="col-span-5 pl-2">Content Details</div>
           <div class="col-span-2">Author</div>
           <div class="col-span-2">Category</div>
-          <div class="col-span-2">Time</div>
-          <div class="col-span-2 text-center">Actions</div>
+          <div class="col-span-1">Time</div>
+          <div class="col-span-2 text-right pr-2">Actions</div>
         </div>
         
         <!-- Content Item -->
         <div 
           v-for="(item, index) in filteredContents" 
           :key="item.id"
-          class="block sm:grid grid-cols-12 p-3 sm:p-4 border-b border-gray-200/30 hover:bg-gray-50 transition-all duration-300 animate-fade-in-up"
+          class="block sm:grid grid-cols-12 gap-x-6 p-4 border-b border-gray-100 hover:bg-blue-50/30 transition-all duration-200 animate-fade-in-up group"
           :style="{ animationDelay: `${(index + 3) * 100}ms` }"
         >
           <!-- Mobile Card Layout -->
@@ -145,64 +145,69 @@
           </div>
           
           <!-- Desktop Grid Layout -->
-          <div class="hidden sm:flex col-span-4 items-center">
-            <div class="mr-2 p-2 rounded-lg shadow-sm" :class="item.type === 'blog' ? 'bg-blue-100' : 'bg-purple-100'">
-              <i :class="item.type === 'blog' ? 'fas fa-file-alt text-blue-500' : 'fas fa-video text-purple-500'"></i>
+          <div class="hidden sm:flex col-span-5 items-start pl-2 py-2">
+            <div class="mr-4 p-3 rounded-xl shadow-sm flex-shrink-0" :class="item.type === 'blog' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'">
+              <i :class="item.type === 'blog' ? 'fas fa-file-alt text-lg' : 'fas fa-video text-lg'"></i>
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0 pr-4">
               <div class="flex items-center gap-2 mb-1">
-                <h3 class="font-bold text-gray-800 text-sm truncate">{{ item.title }}</h3>
-                <span v-if="item.accessType === 'paid'" class="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">
-                  {{ item.price }} Points
+                <h3 class="font-bold text-gray-900 text-sm truncate hover:text-blue-600 transition-colors cursor-pointer" @click="showContentDetail(item)">{{ item.title }}</h3>
+                <span v-if="item.accessType === 'paid'" class="px-2 py-0.5 bg-orange-50 text-orange-600 text-[10px] font-medium rounded-full border border-orange-100">
+                  {{ item.price }} Pts
                 </span>
               </div>
-              <p class="text-sm text-gray-600 line-clamp-2">{{ item.preview }}</p>
-              <div class="mt-1 flex flex-wrap gap-1">
+              <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">{{ item.preview }}</p>
+              <div class="flex flex-wrap gap-2">
                 <span 
                   v-for="tag in (item.tags || []).slice(0, 3)" 
                   :key="tag"
-                  class="px-2 py-1 bg-purple-100 text-purple-600 text-xs rounded-full"
+                  class="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-medium rounded-md border border-gray-200"
                 >
                   {{ tag }}
                 </span>
               </div>
             </div>
           </div>
-          <div class="hidden sm:flex col-span-2 items-center text-sm font-semibold text-gray-600">
-            <i class="fas fa-user mr-2 text-purple-500"></i>{{ item.author }}
-          </div>
-          <div class="hidden sm:flex col-span-2 items-center text-sm text-gray-600">
-            <div>
-              <div class="flex items-center">
-                <i class="fas fa-folder mr-1 text-gray-500"></i>
-                {{ item.categoryName || 'Uncategorized' }}
+          <div class="hidden sm:flex col-span-2 items-center text-sm font-medium text-gray-700">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">
+                <i class="fas fa-user"></i>
               </div>
-              <div class="flex items-center mt-1">
-                <i class="fas fa-clock mr-1 text-gray-500"></i>
-                {{ formatTime(item.submitTime) }}
-              </div>
+              <span class="truncate">{{ item.author }}</span>
             </div>
           </div>
-          <div class="hidden sm:flex col-span-2 items-center justify-center gap-2">
+          <div class="hidden sm:flex col-span-2 items-center text-sm text-gray-600">
+            <div class="flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-50 border border-gray-100">
+              <i class="fas fa-folder text-gray-400 text-xs"></i>
+              <span class="font-medium text-xs">{{ item.categoryName || 'General' }}</span>
+            </div>
+          </div>
+          <div class="hidden sm:flex col-span-1 items-center text-xs text-gray-500 font-medium">
+            {{ formatTime(item.submitTime) }}
+          </div>
+          <div class="hidden sm:flex col-span-2 items-center justify-end gap-2 pr-2">
             <button
               @click="showContentDetail(item)"
-              class="px-3 py-2 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-600 hover:from-gray-200 hover:to-gray-300 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
+              class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+              title="Preview"
             >
-              <i class="fas fa-eye mr-1"></i> Preview
+              <i class="fas fa-eye"></i>
             </button>
             <button
               @click="approveContent(item.id)"
-              class="px-3 py-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-600 hover:from-green-200 hover:to-emerald-200 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
+              class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200"
               :disabled="processingItems.includes(item.id)"
+              title="Approve"
             >
-              <i class="fas fa-check mr-1"></i> Approve
+              <i class="fas fa-check"></i>
             </button>
             <button
               @click="showRejectDialog(item.id)"
-              class="px-3 py-2 bg-gradient-to-r from-red-100 to-pink-100 text-red-600 hover:from-red-200 hover:to-pink-200 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
+              class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
               :disabled="processingItems.includes(item.id)"
+              title="Reject"
             >
-              <i class="fas fa-times mr-1"></i> Reject
+              <i class="fas fa-times"></i>
             </button>
           </div>
         </div>
@@ -284,7 +289,7 @@
           <div v-if="currentContent.content" class="mb-6">
             <h4 class="font-semibold text-gray-800 mb-2">Content Body</h4>
             <div class="bg-white border rounded-lg p-4 max-h-96 overflow-y-auto">
-              <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">{{ currentContent.content }}</div>
+              <div class="prose max-w-none text-gray-700 break-words" v-html="sanitizedDetailHtml"></div>
             </div>
           </div>
         </div>
@@ -368,6 +373,7 @@
 <script>
 import { SimpleDataManager } from '@/utils/simpleDataManager'
 import { firebaseRepo } from '@/services/firebaseRepo'
+import DOMPurify from 'dompurify'
 
 export default {
   name: 'ContentReview',
@@ -414,7 +420,14 @@ export default {
     
     videoCount() {
       return this.contents.filter(item => item.status === 'pending' && item.type === 'video').length
-    }
+    },
+    
+    sanitizedDetailHtml() {
+      const html = this.currentContent && this.currentContent.content ? String(this.currentContent.content) : ''
+      return DOMPurify.sanitize(html, {
+        USE_PROFILES: { html: true },
+      })
+    },
   },
   mounted() {
     this.initializeData()
