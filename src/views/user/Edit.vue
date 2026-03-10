@@ -36,16 +36,19 @@
           <form @submit.prevent="saveProfile">
             <!-- 头像编辑 -->
             <div class="mb-6 flex flex-col items-center animate-bounce-slow">
-              <div class="relative mb-3 group cursor-pointer">
-                <div class="w-24 sm:w-32 h-24 sm:h-32 rounded-full overflow-hidden border-4 border-pink-200">
+              <button
+                type="button"
+                class="relative mb-3 group cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-0"
+                @click="triggerFileInput"
+              >
+                <div class="w-24 sm:w-32 h-24 sm:h-32 rounded-full overflow-hidden border-4 border-pink-200 shadow-lg group-hover:shadow-pink-300/50 transition-all duration-300">
                   <img 
                     :src="form.avatar || defaultAvatar" 
-                    class="w-full h-full object-cover group-hover:opacity-70 transition-all duration-300 group-hover:scale-105 group-hover:rotate-3"
+                    class="w-full h-full object-cover group-hover:opacity-70 transition-all duration-300 group-hover:scale-105"
                     alt="Click to change avatar"
-                    @click="triggerFileInput"
                   />
-                  <div class="absolute inset-0 flex items-center justify-center bg-purple-500/50 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <i class="fas fa-camera text-white text-xl sm:text-2xl"></i>
+                  <div class="absolute inset-0 flex items-center justify-center bg-purple-500/40 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[2px]">
+                    <i class="fas fa-camera text-white text-xl sm:text-2xl drop-shadow-md"></i>
                   </div>
                 </div>
                 <input 
@@ -55,7 +58,7 @@
                   class="hidden"
                   @change="handleAvatarChange" 
                 />
-              </div>
+              </button>
               <p class="text-xs sm:text-sm text-gray-600 font-poppins">Click avatar to change 🖼️</p>
             </div>
 

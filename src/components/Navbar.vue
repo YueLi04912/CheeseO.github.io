@@ -180,8 +180,9 @@ onMounted(() => {
           <div class="relative group">
             <button class="flex items-center space-x-1 sm:space-x-2 text-gray-700 hover:text-blue-600 transition-all duration-300 px-2 sm:px-3 py-2 rounded-xl hover:bg-blue-50">
               <div class="relative">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                  <span class="text-xs sm:text-sm">{{ displayName.charAt(0).toUpperCase() }}</span>
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold shadow-lg transform group-hover:scale-110 transition-transform duration-300 overflow-hidden">
+                  <img v-if="currentUser?.avatar" :src="currentUser.avatar" class="w-full h-full object-cover" :alt="displayName" />
+                  <span v-else class="text-xs sm:text-sm">{{ displayName.charAt(0).toUpperCase() }}</span>
                 </div>
                 <!-- Online Status Indicator -->
                 <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-400 rounded-full border-2 border-white"></div>
