@@ -131,7 +131,7 @@
               </div>
             </div>
   
-            <!-- 文章正文 -->
+            <!-- Article Content Body -->
             <div class="prose max-w-none break-words overflow-hidden">
               <div 
                 v-if="canReadContent" 
@@ -144,12 +144,12 @@
               </div>
             </div>
   
-            <!-- 文章底部互动区 -->
+            <!-- Article Interaction Footer -->
             <div class="mt-12 pt-8 border-t border-gray-200">
               <div class="flex flex-wrap items-center justify-between gap-4">
-                <!-- 左侧互动按钮 -->
+                <!-- Left Interaction Buttons -->
                 <div class="flex items-center gap-4">
-                  <!-- 点赞按钮 -->
+                  <!-- Like Button -->
                   <button 
                     @click="toggleLike"
                     :class="[
@@ -165,7 +165,7 @@
                     <span>{{ article.likes || 0 }}</span>
                   </button>
 
-                  <!-- 收藏按钮 -->
+                  <!-- Bookmark Button -->
                   <button 
                     @click="toggleBookmark"
                     :class="[
@@ -181,7 +181,7 @@
                     <span>Bookmark</span>
                   </button>
 
-                  <!-- 分享按钮 -->
+                  <!-- Share Button -->
                   <button 
                     @click="shareArticle"
                     class="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-500 rounded-lg hover:bg-gray-100 transition-all duration-200"
@@ -191,9 +191,9 @@
                   </button>
                 </div>
 
-                <!-- 右侧操作按钮 -->
+                <!-- Right Action Buttons -->
                 <div class="flex items-center gap-3">
-                  <!-- 关注作者按钮 -->
+                  <!-- Follow Author Button -->
                   <button 
                     v-if="currentUser && currentUser.id !== article.authorId"
                     @click="toggleFollow"
@@ -207,7 +207,7 @@
                     {{ isFollowing ? 'Following' : 'Follow Author' }}
                   </button>
 
-                  <!-- 打赏按钮 -->
+                  <!-- Tip Button -->
                   <button 
                     v-if="currentUser && currentUser.id !== article.authorId"
                     @click="showTipModal = true"
@@ -222,7 +222,7 @@
           </div>
         </article>
   
-        <!-- 相关文章推荐 -->
+        <!-- Related Articles -->
         <div v-if="relatedArticles.length > 0" class="bg-white rounded-xl shadow-sm p-6 mb-8">
           <h3 class="text-xl font-bold text-gray-900 mb-4">Related</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -393,14 +393,14 @@
     name: 'ArticleDetail',
     data() {
       return {
-        // 数据管理器
+        // Data Manager
         dataManager: SimpleDataManager.getInstance(),
         
-        // 文章数据
+        // Article Data
         article: null,
         isLoading: true,
         
-        // 用户状态
+        // User Status
         currentUser: null,
         membershipStatus: { isMember: false },
         isLiked: false,
@@ -408,41 +408,41 @@
         isFollowing: false,
         isPurchased: false,
         
-        // 评论相关
+        // Comments related
         comments: [],
         newComment: '',
         
-        // 相关文章
+        // Related articles
         relatedArticles: [],
         
-        // 打赏相关
+        // Tip related
         showTipModal: false,
         selectedTipAmount: null,
         tipAmounts: [10, 50, 100, 200, 500],
         
-        // 其他状态
+        // Other states
         showLoginModal: false
       }
     },
     computed: {
-      // 是否可以阅读付费内容
+      // Whether can read paid content
       canReadPaidContent() {
         if (!this.article || this.article.accessType !== 'paid') return true
         if (!this.currentUser) return false
         
-        // 作者本人可以阅读
+        // Author can read
         if (this.currentUser.id === this.article.authorId) return true
         
-        // 会员可以免费阅读
+        // Members can read for free
         if (this.membershipStatus.isMember) return true
         
-        // 检查是否已购买此文章
+        // Check if article is purchased
         if (this.isPurchased) return true
         
         return false
       },
       
-      // 是否可以阅读内容
+      // Whether can read content
       canReadContent() {
         return this.article && (this.article.accessType === 'free' || this.canReadPaidContent)
       },
@@ -497,24 +497,21 @@
         }
       },
       
-      // 管理员删除文章
+      // Admin delete article
       async confirmDeleteArticle() {
-        if (!this.currentUser || this.currentUser.role !== 'admin' || !this.article) return
-        
-        const ok = confirm(`确定要删除这篇内容吗？\n\n标题：${this.article.title}`)
-        if (!ok) return
+        if (!confirm('Are you sure you want to delete this article? This action cannot be undone.')) {
+          return
+        }
         
         try {
           const success = await this.dataManager.deleteArticleAsync(this.article.id)
           if (success) {
-            this.showMessage('文章已删除')
+            alert('Article deleted successfully')
             this.$router.push('/')
-          } else {
-            this.showMessage('删除失败：未找到对应文章')
           }
         } catch (error) {
-          console.error('删除文章失败:', error)
-          this.showMessage('删除失败：' + (error.message || '未知错误'))
+          console.error('Failed to delete article:', error)
+          alert('Delete failed')
         }
       },
       
@@ -529,57 +526,57 @@
           // Check bookmark status
           this.isBookmarked = await this.dataManager.isArticleBookmarkedAsync(this.currentUser.id, this.article.id)
           
-          // 检查关注状态
+          // Check follow status
           this.isFollowing = await this.dataManager.isUserFollowedAsync(this.currentUser.id, this.article.authorId)
 
-          // 检查是否已购买
+          // Check if purchased
           if (this.article.accessType === 'paid') {
             this.isPurchased = await this.dataManager.checkArticlePurchasedAsync(this.currentUser.id, this.article.id)
           }
           
-          console.log('用户交互状态:', {
+          console.log('User interaction status:', {
             liked: this.isLiked,
             bookmarked: this.isBookmarked,
             following: this.isFollowing,
             purchased: this.isPurchased
           })
         } catch (error) {
-          console.error('加载用户交互状态失败:', error)
+          console.error('Failed to load user interactions:', error)
         }
       },
       
-      // 加载相关文章
+      // Load related articles
       async loadRelatedArticles() {
         if (!this.article) return
         
         try {
-          // 获取推荐文章
+          // Get recommended articles
           if (this.currentUser) {
             this.relatedArticles = await this.dataManager.getRecommendedArticlesAsync(this.currentUser.id, 4)
           } else {
             this.relatedArticles = await this.dataManager.getPopularArticlesAsync(4)
           }
           
-          // 排除当前文章
+          // Exclude current article
           this.relatedArticles = this.relatedArticles.filter(a => a.id !== this.article.id)
         } catch (error) {
-          console.error('加载相关文章失败:', error)
+          console.error('Failed to load related articles:', error)
           this.relatedArticles = []
         }
       },
       
-      // 加载评论
+      // Load comments
       async loadComments() {
         if (!this.article) return
         try {
           this.comments = await this.dataManager.getCommentsAsync(this.article.id)
         } catch (error) {
-          console.error('加载评论失败:', error)
+          console.error('Failed to load comments:', error)
           this.comments = []
         }
       },
       
-      // 点赞切换
+      // Toggle like
       async toggleLike() {
         if (!this.currentUser) {
           this.showLoginModal = true
@@ -590,20 +587,20 @@
           const newLikeStatus = await this.dataManager.likeArticleAsync(this.currentUser.id, this.article.id)
           this.isLiked = newLikeStatus
           
-          // 更新文章点赞数
+          // Update article likes
           if (newLikeStatus) {
             this.article.likes = (this.article.likes || 0) + 1
           } else {
             this.article.likes = Math.max(0, (this.article.likes || 0) - 1)
           }
           
-          console.log('点赞操作完成:', newLikeStatus ? '已点赞' : '已取消点赞')
+          console.log('Like operation completed:', newLikeStatus ? 'Liked' : 'Unliked')
         } catch (error) {
-          console.error('点赞操作失败:', error)
+          console.error('Failed to toggle like:', error)
         }
       },
       
-      // 收藏切换
+      // Toggle bookmark
       async toggleBookmark() {
         if (!this.currentUser) {
           this.showLoginModal = true
@@ -614,16 +611,16 @@
           const newBookmarkStatus = await this.dataManager.bookmarkArticleAsync(this.currentUser.id, this.article.id)
           this.isBookmarked = newBookmarkStatus
           
-          const message = newBookmarkStatus ? '已添加到收藏' : '已取消收藏'
+          const message = newBookmarkStatus ? 'Added to bookmarks' : 'Removed from bookmarks'
           this.showMessage(message)
           
-          console.log('收藏操作完成:', newBookmarkStatus ? '已收藏' : '已取消收藏')
+          console.log('Bookmark operation completed:', newBookmarkStatus ? 'Bookmarked' : 'Unbookmarked')
         } catch (error) {
-          console.error('收藏操作失败:', error)
+          console.error('Failed to toggle bookmark:', error)
         }
       },
       
-      // 关注切换
+      // Toggle follow
       async toggleFollow() {
         if (!this.currentUser) {
           this.showLoginModal = true
@@ -634,16 +631,16 @@
           const newFollowStatus = await this.dataManager.followUserAsync(this.currentUser.id, this.article.authorId)
           this.isFollowing = newFollowStatus
           
-          const message = newFollowStatus ? `已关注 ${this.article.authorName}` : `已取消关注 ${this.article.authorName}`
+          const message = newFollowStatus ? `Followed ${this.article.authorName}` : `Unfollowed ${this.article.authorName}`
           this.showMessage(message)
           
-          console.log('关注操作完成:', newFollowStatus ? '已关注' : '已取消关注')
+          console.log('Follow operation completed:', newFollowStatus ? 'Followed' : 'Unfollowed')
         } catch (error) {
-          console.error('关注操作失败:', error)
+          console.error('Failed to toggle follow:', error)
         }
       },
       
-      // 发表评论
+      // Post comment
       async postComment() {
         if (!this.newComment.trim() || !this.currentUser) return
         
@@ -658,23 +655,23 @@
           
           const newComment = await this.dataManager.addCommentAsync(commentData)
           
-          // 转换时间戳为 ISO 字符串以供显示
+          // Convert timestamp to ISO string for display
           newComment.createdAt = new Date().toISOString()
           
           this.comments.unshift(newComment)
           this.newComment = ''
           
-          // 增加评论数显示
+          // Increment comment count
           this.article.comments = (this.article.comments || 0) + 1
           
-          this.showMessage('评论发表成功')
+          this.showMessage('Comment posted successfully')
         } catch (error) {
-          console.error('发表评论失败:', error)
-          this.showMessage('评论失败: ' + (error.message || '未知错误'))
+          console.error('Failed to post comment:', error)
+          this.showMessage('Failed to post comment: ' + (error.message || 'Unknown error'))
         }
       },
       
-      // 购买文章
+      // Purchase article
       async purchaseArticle() {
         if (!this.currentUser) {
           this.showLoginModal = true
@@ -682,46 +679,46 @@
         }
         
         try {
-          if (!confirm(`确定要支付 ${this.article.price} 积分购买此文章吗？`)) return
+          if (!confirm(`Are you sure you want to pay ${this.article.price} points to purchase this article?`)) return
           
           await this.dataManager.purchaseArticleAsync(this.currentUser.id, this.article.id, this.article.price)
           
           this.isPurchased = true
-          // 更新本地用户积分显示
+          // Update local user points display
           this.currentUser.points -= this.article.price
           
-          this.showMessage('购买成功')
+          this.showMessage('Purchase successful')
         } catch (error) {
-          console.error('购买失败:', error)
-          this.showMessage('购买失败: ' + (error.message || '未知错误'))
+          console.error('Failed to purchase article:', error)
+          this.showMessage('Purchase failed: ' + (error.message || 'Unknown error'))
         }
       },
       
-      // 发送打赏
+      // Send tip
       async sendTip() {
         if (!this.selectedTipAmount || !this.currentUser) return
         
         if (this.currentUser.points < this.selectedTipAmount) {
-          this.showMessage('积分不足')
+          this.showMessage('Insufficient points')
           return
         }
         
         try {
           await this.dataManager.tipArticleAsync(this.currentUser.id, this.article.id, this.selectedTipAmount)
           
-          // 更新本地用户积分显示
+          // Update local user points display
           this.currentUser.points -= this.selectedTipAmount
           
-          this.showMessage(`打赏 ${this.selectedTipAmount} 积分成功，感谢您的支持！`)
+          this.showMessage(`Tipped ${this.selectedTipAmount} points successfully, thank you for your support!`)
           this.showTipModal = false
           this.selectedTipAmount = null
         } catch (error) {
-          console.error('打赏失败:', error)
-          this.showMessage('打赏失败: ' + (error.message || '未知错误'))
+          console.error('Failed to tip:', error)
+          this.showMessage('Tip failed: ' + (error.message || 'Unknown error'))
         }
       },
       
-      // 分享文章
+      // Share article
       shareArticle() {
         if (navigator.share) {
           navigator.share({
@@ -730,25 +727,25 @@
             url: window.location.href
           })
         } else {
-          // 复制链接到剪贴板
+          // Copy link to clipboard
           navigator.clipboard.writeText(window.location.href).then(() => {
-            this.showMessage('链接已复制到剪贴板')
+            this.showMessage('Link copied to clipboard')
           })
         }
       },
       
-      // 按标签搜索
+      // Search by tag
       searchByTag(tag) {
         this.$router.push(`/?search=${encodeURIComponent(tag)}`)
       },
       
-      // 跳转到登录页
+      // Navigate to login
       goToLogin() {
         this.showLoginModal = false
         this.$router.push('/Login')
       },
       
-      // 工具方法
+      // Utility methods
       getAuthorInitial(name) {
         return name ? name.charAt(0).toUpperCase() : 'U'
       },
@@ -756,7 +753,7 @@
       formatDate(dateString) {
         if (!dateString) return ''
         const date = new Date(dateString)
-        return date.toLocaleDateString('zh-CN')
+        return date.toLocaleDateString('en-US')
       },
       
       formatDateTime(dateString) {
@@ -765,10 +762,10 @@
         const now = new Date()
         const diff = now - date
         
-        if (diff < 60 * 1000) return '刚刚'
-        if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))}分钟前`
-        if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / (60 * 60 * 1000))}小时前`
-        return date.toLocaleDateString('zh-CN')
+        if (diff < 60 * 1000) return 'Just now'
+        if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))} mins ago`
+        if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / (60 * 60 * 1000))} hours ago`
+        return date.toLocaleDateString('en-US')
       },
       
       formatContent(content) {

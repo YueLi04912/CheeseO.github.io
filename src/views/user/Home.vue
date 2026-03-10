@@ -115,12 +115,12 @@
       </div>
     </div>
 
-    <!-- 内容区域 -->
+    <!-- Content Area -->
     <div class="relative z-10 max-w-7xl mx-auto px-6 py-12">
       <div class="grid lg:grid-cols-12 gap-8">
-        <!-- 主内容区 -->
+        <!-- Main Content Area -->
         <div class="lg:col-span-8">
-          <!-- 搜索和标题区域 -->
+          <!-- Search and Title Area -->
           <div class="bg-white/60 backdrop-blur-xl rounded-3xl p-6 mb-8 border border-white/30 shadow-lg">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
@@ -131,7 +131,7 @@
                 <p class="text-gray-600">Discover the latest and hottest content</p>
               </div>
               
-              <!-- 增强的搜索框 -->
+              <!-- Enhanced Search Box -->
               <div class="relative md:w-80">
                 <input
                   type="text"
@@ -152,7 +152,7 @@
             </div>
           </div>
 
-          <!-- 选项卡导航 -->
+          <!-- Tab Navigation -->
           <div class="flex flex-wrap gap-3 mb-8">
             <button
               v-for="item in tabs"
@@ -174,13 +174,13 @@
                 {{ item.count }}
               </span>
               
-              <!-- 活跃指示器 -->
+              <!-- Active Indicator -->
               <div v-if="activeTab === item.key" 
                    class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full"></div>
             </button>
           </div>
 
-          <!-- 加载状态 -->
+          <!-- Loading State -->
           <div v-if="isLoading" class="flex justify-center py-16">
             <div class="flex flex-col items-center space-y-4">
               <div class="relative">
@@ -191,7 +191,7 @@
             </div>
           </div>
 
-          <!-- 内容卡片网格 -->
+          <!-- Content Card Grid -->
           <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <article
               v-for="(item, index) in paginatedItems"
@@ -202,7 +202,7 @@
               :style="{ animationDelay: `${index * 100}ms` }"
               @click="navigateToItem(item)"
             >
-              <!-- 图片容器 -->
+              <!-- Image Container -->
               <div class="relative overflow-hidden">
                 <img 
                   :src="item.coverImage || item.image || getDefaultImage(item.type)" 
@@ -210,17 +210,17 @@
                   class="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110" 
                 />
                 
-                <!-- 覆盖层渐变 -->
+                <!-- Overlay Gradient -->
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
-                <!-- 标签组 -->
+                <!-- Tag Groups -->
                 <div class="absolute top-4 left-4 right-4 flex justify-between items-start">
-                  <!-- 内容类型 -->
+                  <!-- Content Type -->
                   <div class="bg-black/60 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full font-medium">
                     {{ item.type === 'blog' ? '📝 Blog' : '🎥 Video' }}
                   </div>
                   
-                  <!-- 付费标识 -->
+                  <!-- Payment Label -->
                   <div v-if="item.accessType === 'paid' || item.isPremium" 
                        class="bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg">
                     <i class="fas fa-crown mr-1"></i>{{ item.price || 'Member' }}{{ item.price ? ' Points' : '' }}
@@ -230,7 +230,7 @@
                   </div>
                 </div>
                 
-                <!-- 快速操作按钮 -->
+                <!-- Quick Action Buttons -->
                 <div class="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                   <div class="flex space-x-2">
                     <button 
@@ -391,9 +391,9 @@
           </div>
         </div>
 
-        <!-- 侧边栏 -->
+        <!-- Sidebar -->
         <div class="lg:col-span-4 space-y-6">
-          <!-- 平台介绍卡片 -->
+          <!-- Platform Info Card -->
           <div class="bg-white/60 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/30 animate-fade-in-up">
             <div class="text-center mb-6">
               <div class="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
@@ -407,7 +407,7 @@
               </p>
             </div>
             
-            <!-- 平台统计 -->
+            <!-- Platform Stats -->
             <div class="grid grid-cols-3 gap-4">
               <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
                 <div class="text-2xl font-bold text-blue-600 mb-1">{{ platformStats.totalArticles }}</div>
@@ -424,7 +424,7 @@
             </div>
           </div>
           
-          <!-- 热门标签云 -->
+          <!-- Popular Tag Cloud -->
           <div class="bg-white/60 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/30 animate-fade-in-up animation-delay-300">
             <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
               <span class="text-2xl mr-2">🔥</span>
@@ -448,7 +448,7 @@
             </div>
           </div>
 
-          <!-- 热门文章排行榜 -->
+          <!-- Hot Articles Leaderboard -->
           <div class="bg-white/60 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/30 animate-fade-in-up animation-delay-500">
             <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
               <span class="text-2xl mr-2">📈</span>
@@ -489,7 +489,7 @@
             </div>
           </div>
 
-          <!-- 内容分类 -->
+          <!-- Content Categories -->
           <div class="bg-white/60 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/30 animate-fade-in-up animation-delay-700">
             <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
               <span class="text-2xl mr-2">📚</span>
@@ -520,7 +520,7 @@
             </div>
           </div>
 
-          <!-- 推荐作者 -->
+          <!-- Recommended Authors -->
           <div v-if="recommendedAuthors.length > 0" class="bg-white/60 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/30 animate-fade-in-up animation-delay-900">
             <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
               <span class="text-2xl mr-2">✨</span>
@@ -560,7 +560,7 @@
       </div>
     </div>
 
-    <!-- 增强版页脚 -->
+    <!-- Enhanced Footer -->
     <footer class="relative z-10 mt-16">
       <div class="max-w-7xl mx-auto px-6 py-8">
         <div class="bg-white/40 backdrop-blur-xl rounded-3xl p-8 border border-white/30 shadow-lg">
@@ -595,7 +595,7 @@
       </div>
     </footer>
 
-    <!-- 登录提示模态框 -->
+    <!-- Login Prompt Modal -->
     <transition name="modal">
       <div v-if="showLoginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl transform transition-all duration-300">
@@ -642,23 +642,23 @@ export default {
       pageSize: 8,
       showLoginModal: false,
       
-      // 数据
+      // Data
       items: [],
       categories: [],
       popularArticles: [],
       popularTags: [],
       recommendedAuthors: [],
       
-      // 用户状态
+      // User State
       currentUser: null,
       userLikedArticles: new Set(),
       userBookmarkedArticles: new Set(),
       userFollowedUsers: new Set(),
       
-      // 数据管理器
+      // Data Manager
       dataManager: null,
       
-      // 静态数据
+      // Static Data
       socials: [
         { icon: 'logos:github-icon', href: 'https://github.com/YueLi04912/CheeseO.github.io', label: 'GitHub' },
         { icon: 'fa6-brands:x-twitter', href: 'https://x.com/yourname', label: 'X' },

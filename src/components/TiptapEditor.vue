@@ -33,6 +33,31 @@
       >
         <span class="font-bold text-sm">H2</span>
       </button>
+      <button
+        class="p-1 mx-1 rounded hover:bg-gray-200 transition-colors"
+        :class="{ 'bg-gray-200 text-indigo-600': editor.isActive('heading', { level: 3 }) }"
+        @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+        title="Heading 3"
+      >
+        <span class="font-bold text-sm">H3</span>
+      </button>
+      <div class="w-px h-6 bg-gray-300 mx-2"></div>
+      <button
+        class="p-1 mx-1 rounded hover:bg-gray-200 transition-colors"
+        :class="{ 'bg-gray-200 text-indigo-600': editor.isActive('code') }"
+        @click="editor.chain().focus().toggleCode().run()"
+        title="Inline Code"
+      >
+        <i class="fas fa-code"></i>
+      </button>
+      <button
+        class="p-1 mx-1 rounded hover:bg-gray-200 transition-colors"
+        :class="{ 'bg-gray-200 text-indigo-600': editor.isActive('codeBlock') }"
+        @click="editor.chain().focus().toggleCodeBlock().run()"
+        title="Code Block"
+      >
+        <i class="fas fa-terminal"></i>
+      </button>
       <div class="w-px h-6 bg-gray-300 mx-2"></div>
       <button
         class="p-1 mx-1 rounded hover:bg-gray-200 transition-colors"
@@ -62,7 +87,7 @@
       <button
         class="p-1 mx-1 rounded hover:bg-gray-200 transition-colors"
         @click="editor.chain().focus().setHorizontalRule().run()"
-        title="Horizontal Rule"
+        title="Horizontal Line"
       >
         <i class="fas fa-minus"></i>
       </button>
@@ -72,6 +97,30 @@
         title="Insert Image"
       >
         <i class="fas fa-image"></i>
+      </button>
+      <div class="w-px h-6 bg-gray-300 mx-2"></div>
+      <button
+        class="p-1 mx-1 rounded hover:bg-gray-200 transition-colors disabled:opacity-30"
+        @click="editor.chain().focus().undo().run()"
+        :disabled="!editor.can().undo()"
+        title="Undo"
+      >
+        <i class="fas fa-undo"></i>
+      </button>
+      <button
+        class="p-1 mx-1 rounded hover:bg-gray-200 transition-colors disabled:opacity-30"
+        @click="editor.chain().focus().redo().run()"
+        :disabled="!editor.can().redo()"
+        title="Redo"
+      >
+        <i class="fas fa-redo"></i>
+      </button>
+      <button
+        class="p-1 mx-1 rounded hover:bg-gray-200 transition-colors"
+        @click="editor.chain().focus().unsetAllMarks().clearNodes().run()"
+        title="Clear Formatting"
+      >
+        <i class="fas fa-remove-format"></i>
       </button>
       <input
         ref="fileInput"
@@ -113,10 +162,45 @@ const fileInput = ref(null)
 const editor = useEditor({
   extensions: [
     StarterKit.configure({
-      // 可以在这里配置 StarterKit 的组件
+      heading: {
+        levels: [1, 2, 3],
+        HTMLAttributes: {
+          class: 'font-bold text-gray-900 my-4',
+        },
+      },
+      blockquote: {
+        HTMLAttributes: {
+          class: 'border-l-4 border-purple-400 pl-4 italic my-4 text-gray-700 bg-purple-50 py-2 rounded-r',
+        },
+      },
+      bulletList: {
+        HTMLAttributes: {
+          class: 'list-disc list-outside ml-4 my-4 space-y-2',
+        },
+      },
+      orderedList: {
+        HTMLAttributes: {
+          class: 'list-decimal list-outside ml-4 my-4 space-y-2',
+        },
+      },
+      listItem: {
+        HTMLAttributes: {
+          class: 'leading-relaxed',
+        },
+      },
+      codeBlock: {
+        HTMLAttributes: {
+          class: 'bg-gray-100 rounded-md p-4 font-mono text-sm my-4 border border-gray-200 overflow-x-auto',
+        },
+      },
+      horizontalRule: {
+        HTMLAttributes: {
+          class: 'my-8 border-t-2 border-gray-200',
+        },
+      },
       paragraph: {
         HTMLAttributes: {
-          class: 'mb-4 leading-relaxed',
+          class: 'mb-4 leading-relaxed text-gray-700',
         },
       },
     }),
@@ -133,15 +217,15 @@ const editor = useEditor({
      attributes: {
        class: 'focus:outline-none min-h-[300px] prose prose-sm sm:prose max-w-none break-words',
      },
-    // 处理粘贴，防止多余换行
+    // Handle paste to prevent extra line breaks
     transformPastedHTML(html) {
-      // 如果粘贴的内容只有一个 <p> 标签且没有其他同级标签，去掉 <p> 标签以保持在同一行
+      // If the pasted content has only one <p> tag and no other sibling tags, remove the <p> tag to keep it on the same line
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       const body = doc.body;
       
-      // 检查是否只有一个元素节点，且该节点是 P 标签
-      // 同时确保没有非空的文本节点作为同级节点
+      // Check if there is only one element node and it is a P tag
+      // Also ensure there are no non-empty text nodes as sibling nodes
       const hasOnlyOneP = body.children.length === 1 && body.firstElementChild.nodeName === 'P';
       const hasNoOtherText = Array.from(body.childNodes).every(node => {
         if (node.nodeType === Node.TEXT_NODE) return !node.textContent.trim();
@@ -153,8 +237,8 @@ const editor = useEditor({
       }
       return html;
     },
-    // 处理纯文本粘贴，将换行转换为 <br> 而不是新段落（可选，根据需求）
-    // 但通常我们还是希望保留段落，只是解决单个段落被强制换行的问题
+    // Handle plain text paste, converting line breaks to <br> instead of new paragraphs (optional, based on requirement)
+    // But usually we still want to keep paragraphs, just solving the issue of a single paragraph being forced to wrap
   },
   content: props.value,
   onUpdate: ({ editor }) => {
@@ -176,12 +260,12 @@ const handleFileChange = (event) => {
   const file = event.target.files[0]
   if (file) {
     emit('upload-image', file)
-    // 重置 input，方便下次选择同一张图
+    // Reset input to allow selecting the same image again
     event.target.value = ''
   }
 }
 
-// 供外部调用插入图片
+// Exposed for external use to insert images
 const insertImage = (url) => {
   if (editor.value && url) {
     editor.value.chain().focus().setImage({ src: url }).run()

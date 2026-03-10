@@ -100,7 +100,7 @@
             </button>
           </div>
           
-          <!-- 自定义金额 -->
+          <!-- Custom Amount -->
           <div class="mt-6 floating-element">
             <label class="block text-sm font-medium text-indigo-700 mb-2 flex items-center">
               <i class="fas fa-pen mr-2"></i>
@@ -122,7 +122,7 @@
             </div>
           </div>
           
-          <!-- 支付方式 -->
+          <!-- Payment Method -->
           <div class="mt-8">
             <h2 class="text-lg font-semibold text-indigo-700 mb-4 flex items-center">
               <i class="fas fa-credit-card mr-2"></i>
@@ -150,7 +150,7 @@
             </div>
           </div>
           
-          <!-- 订单信息 -->
+          <!-- Order Info -->
           <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-xl mt-6 mb-6 border border-indigo-100">
             <div class="flex justify-between py-3 border-b border-indigo-100">
               <span class="text-indigo-700 flex items-center">
@@ -168,7 +168,7 @@
             </div>
           </div>
           
-          <!-- 支付按钮 -->
+          <!-- Payment Button -->
           <button 
             @click="handlePointsPayment"
             class="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center"
@@ -179,9 +179,9 @@
           </button>
         </div>
         
-        <!-- 会员开通内容 -->
+        <!-- Membership Content -->
         <div v-if="activeTab === 'membership'" class="p-6">
-          <!-- 当前会员状态 -->
+          <!-- Current Membership Status -->
           <div class="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl border border-purple-100">
             <div class="flex justify-between items-center mb-3">
               <span class="text-purple-700 flex items-center">

@@ -1,7 +1,7 @@
 const { onRequest } = require('firebase-functions/v2/https');
 const AlipaySdk = require('alipay-sdk').AlipaySdk;
 
-// 支付宝配置
+// Alipay Configuration
 const alipaySdk = new AlipaySdk({
   appId: '9021000161682492',
   privateKey: `-----BEGIN RSA PRIVATE KEY-----
@@ -11,7 +11,7 @@ MIIEogIBAAKCAQEAiz0eoCO7297T9qLvAQ4cb5CkSzyLtp4969g9FokNXBfNoCTA/37NXxfXqubSJLRS
   gateway: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do',
 });
 
-// 使用第 2 代云函数定义 (v2)
+// Use 2nd generation Cloud Function definition (v2)
 exports.createAlipayOrder = onRequest({ cors: true }, async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');

@@ -233,7 +233,7 @@ export const firebaseRepo = {
     })
   },
 
-  // ==================== 分类相关 ====================
+  // ==================== Category Related ====================
   async getCategories() {
     const snap = await getDocs(collection(db, 'categories'))
     return snap.docs.map(d => ({ id: d.id, ...d.data() }))
@@ -443,7 +443,7 @@ export const firebaseRepo = {
       status: 'pending',
     }
 
-    // 移除不支持的 File 对象
+    // Remove unsupported File objects
     delete payload.videoFile
 
     const docRef = await addDoc(collection(db, 'pendingContents'), payload)
@@ -464,7 +464,7 @@ export const firebaseRepo = {
       const content = snap.data()
       console.log('Found pending content:', content)
 
-      // 防止重复审核
+      // Prevent duplicate approval
       if (content.status === 'approved') {
         console.warn('Content already approved:', contentId)
         return true
@@ -500,7 +500,7 @@ export const firebaseRepo = {
       const docRef = await addDoc(collection(db, 'articles'), articlePayload)
       console.log('Article created with ID:', docRef.id)
       
-      // 审核通过后，直接从 pendingContents 队列中移除该记录
+      // After approval, remove the record from the pendingContents queue
       await deleteDoc(pendingRef)
       console.log('Pending content document deleted after approval')
       
@@ -556,7 +556,7 @@ export const firebaseRepo = {
       return { 
         ...data,
         id: d.id, 
-        // 处理时间戳转换，兼容本地 Date 类型
+        // Handle timestamp conversion, compatible with local Date type
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : (data.createdAt || new Date().toISOString()),
         publishedAt: data.publishedAt?.toDate ? data.publishedAt.toDate().toISOString() : (data.publishedAt || undefined),
         updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : (data.updatedAt || new Date().toISOString())
@@ -584,7 +584,7 @@ export const firebaseRepo = {
   },
 
   async getUserById(id: string | number) {
-    // 尝试直接作为文档ID获取
+    // Try to get as document ID directly
     if (typeof id === 'string') {
       const docRef = doc(db, 'users', id)
       const snap = await getDoc(docRef)
@@ -593,7 +593,7 @@ export const firebaseRepo = {
       }
     }
 
-    // 如果不是文档ID，尝试作为字段查询
+    // If not a document ID, try to query by id field
     const q = query(collection(db, 'users'), where('id', '==', id))
     const snap = await getDocs(q)
     if (!snap.empty) {
@@ -613,7 +613,7 @@ export const firebaseRepo = {
     }
     
     if (typeof id === 'string') {
-      // 尝试直接作为文档ID
+      // Try as document ID directly
       const ref = doc(db, 'users', id)
       const snap = await getDoc(ref)
       if (snap.exists()) {
@@ -622,7 +622,7 @@ export const firebaseRepo = {
     }
     
     if (!docRef) {
-      // 查询id字段
+      // Query by id field
       const q = query(collection(db, 'users'), where('id', '==', id))
       const snap = await getDocs(q)
       if (!snap.empty) {
@@ -684,7 +684,7 @@ export const firebaseRepo = {
     return snap.docs.map(d => ({ id: d.id, ...d.data() }))
   },
 
-  // ==================== 文章购买相关 ====================
+  // ==================== Article Purchase Related ====================
 
   async addPurchasedArticle(record: any) {
     const docRef = await addDoc(collection(db, 'purchasedArticles'), {
@@ -742,7 +742,7 @@ export const firebaseRepo = {
     return null
   },
 
-  // ==================== 会员记录相关 ====================
+  // ==================== Membership Related ====================
   async addMembershipRecord(record: any) {
     const docRef = await addDoc(collection(db, 'membershipRecords'), {
       ...record,
@@ -762,7 +762,7 @@ export const firebaseRepo = {
     return snap.docs.map(d => ({ id: d.id, ...d.data() }))
   },
 
-  // ==================== 提现申请相关 ====================
+  // ==================== Withdrawal Related ====================
   async getWithdrawRequests() {
     const snap = await getDocs(collection(db, 'withdrawRequests'))
     return snap.docs.map(d => ({ id: d.id, ...d.data() }))

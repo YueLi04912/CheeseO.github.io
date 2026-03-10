@@ -98,9 +98,9 @@
 
       <!-- Points and content area -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- 左侧：积分和会员 -->
+        <!-- Left side: Points and Membership -->
         <div class="lg:col-span-1 space-y-6">
-          <!-- 积分卡 -->
+          <!-- Points Card -->
           <div class="bg-white rounded-2xl shadow-lg border border-purple-200 p-4 sm:p-6 transform transition-all hover:scale-[1.01] duration-300">
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-lg sm:text-xl font-bold text-gray-800 font-poppins">Points Center</h2>
@@ -251,7 +251,7 @@
               </div>
             </div>
 
-            <!-- 我的博客 -->
+            <!-- My Blogs -->
             <div v-if="activeTab === 'blogs'" class="divide-y divide-gray-200">
               <div 
                 v-for="blog in userBlogs" 
@@ -290,7 +290,7 @@
                 </div>
               </div>
               
-              <!-- 空状态 -->
+              <!-- Empty State -->
               <div v-if="userBlogs.length === 0" class="p-6 sm:p-8 text-center">
                 <div class="animate-bounce mb-2">
                   <i class="fas fa-file-alt text-4xl sm:text-6xl text-gray-300"></i>
@@ -306,7 +306,7 @@
               </div>
             </div>
 
-            <!-- 点赞的文章 -->
+            <!-- Liked Articles -->
             <div v-if="activeTab === 'liked'" class="divide-y divide-gray-200">
               <div 
                 v-for="article in likedArticles" 
@@ -337,7 +337,7 @@
                 </div>
               </div>
               
-              <!-- 空状态 -->
+              <!-- Empty State -->
               <div v-if="likedArticles.length === 0" class="p-6 sm:p-8 text-center">
                 <div class="animate-bounce mb-2">
                   <i class="far fa-heart text-4xl sm:text-6xl text-gray-300"></i>
@@ -398,7 +398,7 @@
               </div>
             </div>
 
-            <!-- 关注的人 -->
+            <!-- Following Users -->
             <div v-if="activeTab === 'following'" class="divide-y divide-gray-200">
               <div 
                 v-for="user in followingUsers" 
@@ -412,19 +412,19 @@
                     </div>
                     <div>
                       <h3 class="font-medium text-gray-800 font-poppins">{{ user.nickname || user.username }}</h3>
-                      <p class="text-sm text-gray-600 font-poppins">{{ user.bio || '这个人很懒，什么都没留下...' }}</p>
+                      <p class="text-sm text-gray-600 font-poppins">{{ user.bio || 'This user is lazy and has not left anything...' }}</p>
                     </div>
                   </div>
                   <button 
                     @click="unfollowUser(user.id)"
                     class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-all duration-200 text-sm font-poppins"
                   >
-                    已关注
+                    Following
                   </button>
                 </div>
               </div>
               
-              <!-- 空状态 -->
+              <!-- Empty State -->
               <div v-if="followingUsers.length === 0" class="p-6 sm:p-8 text-center">
                 <div class="animate-bounce mb-2">
                   <i class="fas fa-user-friends text-4xl sm:text-6xl text-gray-300"></i>
@@ -471,11 +471,11 @@
                     </div>
                     <p class="text-gray-600 mt-2 font-poppins line-clamp-2">{{ video.excerpt }}</p>
                     
-                    <!-- 视频特有信息 -->
+                    <!-- Video specific info -->
                     <div class="flex items-center mt-3 text-sm text-gray-500">
                       <div class="flex items-center mr-4">
                         <i class="fas fa-clock mr-1"></i>
-                        <span>{{ video.duration || '待处理' }}</span>
+                        <span>{{ video.duration || 'Pending' }}</span>
                       </div>
                       <div class="flex items-center mr-4">
                         <i class="far fa-eye text-purple-500 mr-1"></i>
@@ -488,7 +488,7 @@
                     </div>
                   </div>
                   
-                  <!-- 视频封面缩略图 -->
+                  <!-- Video cover thumbnail -->
                   <div v-if="video.coverImage" class="flex-shrink-0">
                     <div class="w-24 h-16 bg-gray-200 rounded-lg overflow-hidden relative">
                       <img :src="video.coverImage" class="w-full h-full object-cover" />
@@ -499,7 +499,7 @@
                   </div>
                 </div>
                 
-                <!-- 视频底部信息 -->
+                <!-- Video Footer Info -->
                 <div class="flex items-center mt-4">
                   <div class="flex items-center">
                     <i class="fas fa-calendar text-gray-500 mr-1"></i>
@@ -508,12 +508,12 @@
                   <span class="mx-2 text-gray-400">•</span>
                   <span class="text-sm text-purple-600 font-poppins">{{ video.categoryName }}</span>
                   <span v-if="video.accessType === 'paid'" class="ml-2 text-xs px-2 py-1 bg-orange-100 text-orange-600 rounded-full">
-                    {{ video.price }} 积分
+                    {{ video.price }} Points
                   </span>
                 </div>
               </div>
               
-              <!-- 空状态 -->
+              <!-- Empty State -->
               <div v-if="userVideos.length === 0" class="p-6 sm:p-8 text-center">
                 <div class="animate-bounce mb-2">
                   <i class="fas fa-video text-4xl sm:text-6xl text-gray-300"></i>
@@ -783,7 +783,7 @@ const getStatusText = (status: string) => {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('zh-CN')
+  return new Date(dateString).toLocaleDateString('en-US')
 }
 
 // Avatar related methods

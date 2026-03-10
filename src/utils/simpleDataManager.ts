@@ -1306,7 +1306,7 @@ export class SimpleDataManager {
       throw new Error('Insufficient points')
     }
 
-    const minWithdraw = 1000 // Minimum withdraw 1000 points
+    const minWithdraw = 1 // Minimum withdraw 1 point
     if (points < minWithdraw) {
       throw new Error(`Minimum withdraw amount is ${minWithdraw} points`)
     }
@@ -1354,7 +1354,7 @@ export class SimpleDataManager {
         throw new Error('Insufficient points')
       }
 
-      const minWithdraw = 1000
+      const minWithdraw = 1
       if (points < minWithdraw) {
         throw new Error(`Minimum withdraw amount is ${minWithdraw} points`)
       }

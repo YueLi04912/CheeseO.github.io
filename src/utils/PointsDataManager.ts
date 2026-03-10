@@ -925,8 +925,8 @@ class PointsDataManager {
       throw new Error('Insufficient points')
     }
 
-    if (points < 1000) {
-      throw new Error('Minimum withdraw is 1000 points')
+    if (points < 1) {
+      throw new Error('Minimum withdraw is 1 point')
     }
 
     const amount = points / 100 // 100 points = 1 RMB

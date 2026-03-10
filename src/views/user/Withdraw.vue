@@ -155,7 +155,7 @@
                   <div class="flex items-center gap-2 mb-2">
                     <span class="font-medium">{{ record.points }} Points</span>
                     <span class="text-gray-500">→</span>
-                    <span class="font-medium text-green-600">¥{{ record.amount }}</span>
+                    <span class="font-medium text-green-600">${{ (record.points / 100).toFixed(2) }}</span>
                   </div>
                   <div class="text-sm text-gray-500">
                     <p>{{ record.bankInfo.bankName }} ({{ record.bankInfo.accountNumber.replace(/(\d{4})\d*(\d{4})/, '$1****$2') }})</p>
@@ -219,7 +219,7 @@ import { SimpleDataManager } from '@/utils/simpleDataManager'
 const router = useRouter()
 const dataManager = SimpleDataManager.getInstance()
 
-// 响应式数据
+// Reactive data
 const currentUser = ref(dataManager.getCurrentUser())
 const withdrawAmount = ref<number | null>(null)
 const bankInfo = ref({
@@ -228,28 +228,28 @@ const bankInfo = ref({
   accountName: ''
 })
 
-// 表单验证状态
+// Form validation status
 const amountError = ref('')
 const bankNameError = ref('')
 const accountNumberError = ref('')
 const accountNameError = ref('')
 const isSubmitting = ref(false)
 
-// 动画状态
+// Animation status
 const showPointsAnimation = ref(false)
 const showSuccessMessage = ref(false)
 const animatedPoints = ref(0)
 
-// 提现记录
+// Withdrawal history
 const withdrawHistory = ref<any[]>([])
 
-// 计算实际到账金额
+// Calculate actual amount
 const actualAmount = computed(() => {
   if (!withdrawAmount.value || withdrawAmount.value <= 0) return 0
-  return withdrawAmount.value / 100 // 100积分 = 1元
+  return withdrawAmount.value / 100 // 100 points = $1
 })
 
-// 表单验证
+// Form validation
 const isFormValid = computed(() => {
   return withdrawAmount.value && 
          withdrawAmount.value >= 1 && 
@@ -263,7 +263,7 @@ const isFormValid = computed(() => {
          !accountNameError.value
 })
 
-// 初始化
+// Initialization
 onMounted(async () => {
   const user = await dataManager.getCurrentUserAsync()
   if (!user) {
@@ -274,23 +274,23 @@ onMounted(async () => {
   currentUser.value = user
   
   await loadWithdrawHistory()
-  console.log('Withdraw.vue 已加载，当前用户:', currentUser.value)
+  console.log('Withdraw.vue loaded, current user:', currentUser.value)
 })
 
-// 加载提现记录
+// Load withdrawal history
 const loadWithdrawHistory = async () => {
   if (!currentUser.value) return
   
   try {
     const history = await dataManager.getUserWithdrawRequestsAsync(currentUser.value.id)
     withdrawHistory.value = history
-    console.log('提现记录:', withdrawHistory.value)
+    console.log('Withdrawal history:', withdrawHistory.value)
   } catch (error) {
-    console.error('加载提现记录失败:', error)
+    console.error('Failed to load withdrawal history:', error)
   }
 }
 
-// 计算实际金额并验证
+// Calculate actual amount and validate
 const calculateActualAmount = () => {
   amountError.value = ''
   const amount = Number(withdrawAmount.value)
@@ -304,9 +304,8 @@ const calculateActualAmount = () => {
   }
 }
 
-// 验证银行信息
+// Validate bank info
 const validateBankInfo = () => {
-  bankNameError.value = ''
   bankNameError.value = ''
   accountNumberError.value = ''
   accountNameError.value = ''
@@ -326,11 +325,11 @@ const validateBankInfo = () => {
   }
 }
 
-// 提交提现申请
+// Submit withdrawal request
 const submitWithdrawal = async () => {
   if (!isFormValid.value || !currentUser.value) return
   
-  // 验证银行信息
+  // Validate bank info
   validateBankInfo()
   if (bankNameError.value || accountNumberError.value || accountNameError.value) {
     return
@@ -343,7 +342,7 @@ const submitWithdrawal = async () => {
   isSubmitting.value = true
   
   try {
-    // 创建提现申请
+    // Create withdrawal request
     const withdrawRequest = await dataManager.createWithdrawRequestAsync(
       currentUser.value.id,
       withdrawAmount.value!,
@@ -354,23 +353,23 @@ const submitWithdrawal = async () => {
       }
     )
     
-    console.log('提现申请已创建:', withdrawRequest)
+    console.log('Withdrawal request created:', withdrawRequest)
     
-    // 显示扣减动画
+    // Show deduction animation
     animatedPoints.value = withdrawAmount.value!
     showPointsAnimation.value = true
     
-    // 更新当前用户数据
+    // Update current user data
     const latestUser = await dataManager.getUserByIdAsync(currentUser.value.id)
     if (latestUser) {
       currentUser.value = latestUser
       dataManager.setCurrentUser(latestUser)
     }
     
-    // 重新加载提现记录
+    // Reload withdrawal history
     await loadWithdrawHistory()
     
-    // 重置表单
+    // Reset form
     withdrawAmount.value = null
     bankInfo.value = {
       bankName: '',
@@ -378,7 +377,7 @@ const submitWithdrawal = async () => {
       accountName: ''
     }
     
-    // 显示成功提示
+    // Show success message
     setTimeout(() => {
       showPointsAnimation.value = false
       showSuccessMessage.value = true
@@ -389,19 +388,19 @@ const submitWithdrawal = async () => {
     }, 2000)
     
   } catch (error: any) {
-    console.error('提现申请失败:', error)
+    console.error('Withdrawal request failed:', error)
     alert(error.message || 'Withdrawal failed, please try again later 😓')
   } finally {
     isSubmitting.value = false
   }
 }
 
-// 格式化日期时间
+// Format date time
 const formatDateTime = (dateString: string) => {
   return new Date(dateString).toLocaleString('en-US')
 }
 
-// 获取状态样式
+// Get status class
 const getStatusClass = (status: string) => {
   const statusClasses = {
     'pending': 'bg-yellow-100 text-yellow-800',
@@ -412,7 +411,7 @@ const getStatusClass = (status: string) => {
   return statusClasses[status as keyof typeof statusClasses] || 'bg-gray-100 text-gray-800'
 }
 
-// 获取状态文本
+// Get status text
 const getStatusText = (status: string) => {
   const statusTexts = {
     'pending': 'Pending',
@@ -425,7 +424,7 @@ const getStatusText = (status: string) => {
 </script>
 
 <style scoped>
-/* 动态气泡 */
+/* Dynamic bubbles */
 .bubble {
   position: absolute;
   border-radius: 50%;
@@ -446,32 +445,32 @@ const getStatusText = (status: string) => {
   50% { transform: translateY(-20px) rotate(5deg); }
 }
 
-/* 玻璃拟态效果 */
+/* Glassmorphism panel */
 .glass-panel {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-/* 输入框和按钮悬浮效果 */
+/* Input and button hover effects */
 input:hover,
 button:not(:disabled):hover {
   transform: translateY(-2px);
 }
 
-/* 平滑过渡 */
+/* Smooth transitions */
 input,
 button {
   transition: all 0.3s ease;
 }
 
-/* 禁用按钮样式 */
+/* Disabled button styles */
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* 动画效果 */
+/* Animation effects */
 .fade-slide-enter-active, .fade-slide-leave-active {
   transition: all 0.5s ease;
 }
@@ -499,7 +498,7 @@ button:disabled {
   50% { opacity: 0.7; }
 }
 
-/* 移动端优化 */
+/* Mobile optimization */
 @media (max-width: 640px) {
   input, button {
     min-height: 3rem;

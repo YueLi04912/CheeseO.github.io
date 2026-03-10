@@ -137,7 +137,7 @@
               Add
             </button>
           </div>
-          <p class="mt-1 text-xs text-gray-500">Suggested tags: {{ suggestedTags.join('、') }}</p>
+          <p class="mt-1 text-xs text-gray-500">Suggested tags: {{ suggestedTags.join(', ') }}</p>
         </div>
 
         <!-- Access -->
@@ -186,7 +186,7 @@
           <div class="text-sm text-gray-600 space-y-1">
             <p><strong>Title: </strong>{{ blogForm.title }}</p>
             <p><strong>Category: </strong>{{ getSelectedCategoryName() }}</p>
-            <p><strong>Tags: </strong>{{ blogForm.tags.join('、') || 'None' }}</p>
+            <p><strong>Tags: </strong>{{ blogForm.tags.join(', ') || 'None' }}</p>
             <p><strong>Access: </strong>{{ blogForm.accessType === 'free' ? 'Free' : `Paid ${blogForm.price} points` }}</p>
             <p><strong>Chars: </strong>Approx {{ blogForm.content.length }} chars</p>
           </div>
@@ -425,7 +425,7 @@
             <div class="text-sm text-gray-600 space-y-1">
               <p><strong>Title: </strong>{{ videoForm.title }}</p>
               <p><strong>Category: </strong>{{ getSelectedVideoCategoryName() }}</p>
-              <p><strong>Tags: </strong>{{ videoForm.tags.join('、') || 'None' }}</p>
+              <p><strong>Tags: </strong>{{ videoForm.tags.join(', ') || 'None' }}</p>
               <p><strong>Access: </strong>{{ videoForm.accessType === 'free' ? 'Free' : `Paid ${videoForm.price} points` }}</p>
               <p><strong>File: </strong>{{ videoForm.videoFile ? videoForm.videoFile.name : 'Not selected' }}</p>
             </div>
